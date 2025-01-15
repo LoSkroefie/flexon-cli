@@ -1,0 +1,16 @@
+{
+        "name": "Complex Structure",
+        "nested": {
+            "level1": {
+                "level2": {
+                    "level3": {
+                        "value": "deeply nested"
+                    }
+                }
+            }
+        },
+        "list_of_objects": [
+            { "key": "value1" },
+            { "key": "value2" }
+        ]
+    }
