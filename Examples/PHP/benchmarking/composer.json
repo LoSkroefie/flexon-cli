@@ -1,0 +1,13 @@
+{
+    "name": "flexon/benchmarking",
+    "description": "Benchmarking example for Flexon CLI",
+    "type": "project",
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flexon\\Examples\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "basicusage",
+    "gamestate",
+    "aidata",
+    "secureconfig",
+    "benchmarking"
+]
