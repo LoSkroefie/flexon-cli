@@ -1,7 +1,7 @@
 # 🚀 FlexonCLI - The Next Generation Data Format
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/LoSkroefie/flexon-cli-src)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/LoSkroefie/flexon-cli-src)
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download)
 
 > **FlexonCLI** is a revolutionary binary data format and toolset that combines the simplicity of JSON with the power and efficiency of binary encoding. It's faster, smaller, and more capable than traditional JSON, while maintaining full compatibility with existing JSON workflows.

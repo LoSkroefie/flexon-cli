@@ -16,6 +16,14 @@ public enum EncryptionAlgorithm
     TripleDES
 }
 
+public enum CompressionMethod
+{
+    None,
+    GZip,
+    Deflate,
+    Brotli
+}
+
 public class EncryptionOptions
 {
     public EncryptionAlgorithm Algorithm { get; set; }
@@ -52,6 +60,7 @@ public class SerializationOptions
     public string OutputFile { get; set; }
     public string SchemaFile { get; set; }
     public EncryptionOptions Encryption { get; set; }
+    public CompressionMethod Compression { get; set; } = CompressionMethod.GZip;
     public bool Benchmark { get; set; }
 
     public static SerializationOptions ParseFromArgs(string[] args)
@@ -72,6 +81,13 @@ public class SerializationOptions
                 case "-s":
                 case "--schema":
                     if (++i < args.Length) options.SchemaFile = args[i];
+                    break;
+                case "-c":
+                case "--compression":
+                    if (++i < args.Length && Enum.TryParse(args[i], true, out CompressionMethod method))
+                    {
+                        options.Compression = method;
+                    }
                     break;
                 case "-e":
                 case "--encrypt":
@@ -102,7 +118,7 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine("=====================================");
-        Console.WriteLine(" FLEXON CLI Utility v1.1.0");
+        Console.WriteLine(" FLEXON CLI Utility v1.2.0");
         Console.WriteLine(" Developed by JVR Software");
         Console.WriteLine("=====================================\n");
 
@@ -229,7 +245,11 @@ public class Program
         using var outputStream = new FileStream(options.OutputFile, FileMode.Create);
         using var targetStream = options.Encryption != null ? 
             GetEncryptionStream(outputStream, options.Encryption) : outputStream;
-        using var compressedStream = new GZipStream(targetStream, CompressionMode.Compress);
+        
+        // Write compression method as first byte
+        targetStream.WriteByte((byte)options.Compression);
+        
+        using var compressedStream = GetCompressionStream(targetStream, options.Compression, true);
         using var writer = new BinaryWriter(compressedStream);
         
         FlexonBinary.Encode(data, writer);
@@ -250,7 +270,11 @@ public class Program
         using var inputStream = new FileStream(options.InputFiles[0], FileMode.Open);
         using var sourceStream = options.Encryption != null ? 
             GetDecryptionStream(inputStream, options.Encryption) : inputStream;
-        using var compressedStream = new GZipStream(sourceStream, CompressionMode.Decompress);
+        
+        // Read compression method from first byte
+        var compressionMethod = (CompressionMethod)sourceStream.ReadByte();
+        
+        using var compressedStream = GetCompressionStream(sourceStream, compressionMethod, false);
         using var reader = new BinaryReader(compressedStream);
         
         var data = FlexonBinary.Decode(reader);
@@ -318,7 +342,7 @@ public class Program
     {
         // Display CLI header with updated version
         Console.WriteLine("=====================================");
-        Console.WriteLine(" FLEXON CLI Utility v1.1.0");
+        Console.WriteLine(" FLEXON CLI Utility v1.2.0");
         Console.WriteLine(" Developed by JVR Software");
         Console.WriteLine("=====================================\n");
 
@@ -423,15 +447,19 @@ public class Program
         Console.WriteLine("Validation passed: FLEXON data matches the schema.");
     }
 
-    static void EncodeJsonToFlexon(string inputPath, string outputPath, EncryptionOptions options = null)
+    static void EncodeJsonToFlexon(string inputPath, string outputPath, EncryptionOptions options = null, CompressionMethod compression = CompressionMethod.GZip)
     {
         var json = File.ReadAllText(inputPath);
-        var data = JsonSerializer.Deserialize<object>(json);
+        var data = JsonSerializer.Deserialize<JsonElement>(json);
 
         using var outputStream = new FileStream(outputPath, FileMode.Create);
         using var targetStream = options != null ? 
             GetEncryptionStream(outputStream, options) : outputStream;
-        using var compressedStream = new GZipStream(targetStream, CompressionMode.Compress);
+        
+        // Write compression method as first byte
+        targetStream.WriteByte((byte)compression);
+        
+        using var compressedStream = GetCompressionStream(targetStream, compression, true);
         using var writer = new BinaryWriter(compressedStream);
         FlexonBinary.Encode(data, writer);
     }
@@ -441,7 +469,11 @@ public class Program
         using var inputStream = new FileStream(inputPath, FileMode.Open);
         using var sourceStream = options != null ? 
             GetDecryptionStream(inputStream, options) : inputStream;
-        using var compressedStream = new GZipStream(sourceStream, CompressionMode.Decompress);
+        
+        // Read compression method from first byte
+        var compressionMethod = (CompressionMethod)sourceStream.ReadByte();
+        
+        using var compressedStream = GetCompressionStream(sourceStream, compressionMethod, false);
         using var reader = new BinaryReader(compressedStream);
         var data = FlexonBinary.Decode(reader);
 
@@ -521,6 +553,29 @@ public class Program
         }
     }
 
+    private static Stream GetCompressionStream(Stream baseStream, CompressionMethod method, bool compress)
+    {
+        switch (method)
+        {
+            case CompressionMethod.None:
+                return baseStream;
+            case CompressionMethod.GZip:
+                return compress 
+                    ? new GZipStream(baseStream, CompressionLevel.Optimal) 
+                    : new GZipStream(baseStream, CompressionMode.Decompress);
+            case CompressionMethod.Deflate:
+                return compress 
+                    ? new DeflateStream(baseStream, CompressionLevel.Optimal) 
+                    : new DeflateStream(baseStream, CompressionMode.Decompress);
+            case CompressionMethod.Brotli:
+                return compress 
+                    ? new BrotliStream(baseStream, CompressionLevel.Optimal) 
+                    : new BrotliStream(baseStream, CompressionMode.Decompress);
+            default:
+                throw new ArgumentException($"Unsupported compression method: {method}");
+        }
+    }
+
     private static Stream GetAesEncryptionStream(Stream outputStream, string key)
     {
         using var aes = Aes.Create();
@@ -549,23 +604,20 @@ public class Program
 
     private static Stream GetChaCha20EncryptionStream(Stream outputStream, string key)
     {
-        var keyBytes = DeriveKeyAndIV(key, out byte[] nonce, 32);
-        outputStream.Write(nonce, 0, nonce.Length);
-        
-        var chacha20 = new ChaCha20Poly1305(keyBytes);
-        var encryptor = chacha20.CreateEncryptor(nonce, null);
-        return new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+        using var memoryStream = new MemoryStream();
+        outputStream.CopyTo(memoryStream);
+        var data = memoryStream.ToArray();
+        var encryptedData = EncryptChaCha20(data, DeriveKeyAndIV(key, out _, 32));
+        return new MemoryStream(encryptedData);
     }
 
     private static Stream GetChaCha20DecryptionStream(Stream inputStream, string key)
     {
-        var nonce = new byte[16];
-        inputStream.Read(nonce, 0, nonce.Length);
-        
-        var keyBytes = DeriveKeyAndIV(key, out _, 32);
-        var chacha20 = new ChaCha20Poly1305(keyBytes);
-        var decryptor = chacha20.CreateDecryptor(nonce, null);
-        return new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+        using var memoryStream = new MemoryStream();
+        inputStream.CopyTo(memoryStream);
+        var encryptedData = memoryStream.ToArray();
+        var decryptedData = DecryptChaCha20(encryptedData, DeriveKeyAndIV(key, out _, 32));
+        return new MemoryStream(decryptedData);
     }
 
     private static Stream GetTripleDesEncryptionStream(Stream outputStream, string key)
@@ -601,10 +653,50 @@ public class Program
         return deriveBytes.GetBytes(keySize);
     }
 
+    private static byte[] EncryptChaCha20(byte[] data, byte[] key)
+    {
+        using var algorithm = new ChaCha20Poly1305(key);
+        var nonce = new byte[12];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(nonce);
+
+        byte[] ciphertext = new byte[data.Length];
+        byte[] tag = new byte[16];
+        algorithm.Encrypt(nonce, data, ciphertext, tag);
+
+        // Combine nonce + ciphertext + tag
+        byte[] result = new byte[nonce.Length + ciphertext.Length + tag.Length];
+        Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
+        Buffer.BlockCopy(ciphertext, 0, result, nonce.Length, ciphertext.Length);
+        Buffer.BlockCopy(tag, 0, result, nonce.Length + ciphertext.Length, tag.Length);
+
+        return result;
+    }
+
+    private static byte[] DecryptChaCha20(byte[] encryptedData, byte[] key)
+    {
+        using var algorithm = new ChaCha20Poly1305(key);
+
+        // Extract nonce, ciphertext, and tag
+        byte[] nonce = new byte[12];
+        Buffer.BlockCopy(encryptedData, 0, nonce, 0, nonce.Length);
+
+        byte[] ciphertext = new byte[encryptedData.Length - nonce.Length - 16];
+        Buffer.BlockCopy(encryptedData, nonce.Length, ciphertext, 0, ciphertext.Length);
+
+        byte[] tag = new byte[16];
+        Buffer.BlockCopy(encryptedData, nonce.Length + ciphertext.Length, tag, 0, tag.Length);
+
+        byte[] plaintext = new byte[ciphertext.Length];
+        algorithm.Decrypt(nonce, ciphertext, tag, plaintext);
+
+        return plaintext;
+    }
+
     private static void DisplayUsage()
     {
         Console.WriteLine("Flexon CLI - The Next Generation Data Format");
-        Console.WriteLine("Version: 1.1.0");
+        Console.WriteLine("Version: 1.2.0");
         Console.WriteLine("\nUsage: flexon-cli <command> [options]");
         Console.WriteLine("\nCommands:");
         Console.WriteLine("  serialize     Convert files to Flexon format");
@@ -639,6 +731,7 @@ public class Program
                 Console.WriteLine("  -o, --output    Output Flexon file");
                 Console.WriteLine("  -s, --schema    JSON schema file for validation");
                 Console.WriteLine("  -e, --encrypt   Encryption key and optional algorithm");
+                Console.WriteLine("  -c, --compression  Compression method (GZip, Deflate, Brotli, None)");
                 Console.WriteLine("  -b, --benchmark Run performance benchmarks");
                 Console.WriteLine("\nSupported Input Formats:");
                 Console.WriteLine("  - JSON files (.json)");
@@ -672,6 +765,7 @@ public class Program
                 Console.WriteLine("  -i, --input     Input file to benchmark");
                 Console.WriteLine("  -o, --output    Output file for benchmark results");
                 Console.WriteLine("  -e, --encrypt   Include encryption in benchmark");
+                Console.WriteLine("  -c, --compression  Compression method (GZip, Deflate, Brotli, None)");
                 Console.WriteLine("  -b, --benchmark Show detailed metrics");
                 Console.WriteLine("\nMetrics Reported:");
                 Console.WriteLine("  - Serialization time");
@@ -806,6 +900,59 @@ public static class FlexonBinary
                 Encode(dict[key], writer); // Value
             }
             writer.Write((byte)0x00); // End of object marker
+        }
+        else if (data is JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Null:
+                    writer.Write((byte)0x00);
+                    break;
+                case JsonValueKind.True:
+                    writer.Write((byte)0x01);
+                    break;
+                case JsonValueKind.False:
+                    writer.Write((byte)0x02);
+                    break;
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int intValue))
+                    {
+                        writer.Write((byte)0x03);
+                        writer.Write(intValue);
+                    }
+                    else
+                    {
+                        writer.Write((byte)0x04);
+                        writer.Write(element.GetDouble());
+                    }
+                    break;
+                case JsonValueKind.String:
+                    writer.Write((byte)0x05);
+                    var stringValue = element.GetString();
+                    var stringBytes = Encoding.UTF8.GetBytes(stringValue ?? "");
+                    writer.Write(stringBytes.Length);
+                    writer.Write(stringBytes);
+                    break;
+                case JsonValueKind.Array:
+                    writer.Write((byte)0x09);
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        Encode(item, writer);
+                    }
+                    writer.Write((byte)0x00);
+                    break;
+                case JsonValueKind.Object:
+                    writer.Write((byte)0x0A);
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        Encode(prop.Name, writer);
+                        Encode(prop.Value, writer);
+                    }
+                    writer.Write((byte)0x00);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported JsonValueKind: {element.ValueKind}");
+            }
         }
         else
         {

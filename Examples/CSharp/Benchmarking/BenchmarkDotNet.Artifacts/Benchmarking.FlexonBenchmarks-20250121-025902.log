@@ -1,0 +1,496 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 6 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e
+// command took 4.47s and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e
+// command took 8.73s and exited with 0
+// ***** Done, took 00:00:13 (13.43 sec)   *****
+// Found 6 benchmarks:
+//   FlexonBenchmarks.JsonSerialize: DefaultJob
+//   FlexonBenchmarks.FlexonSerialize: DefaultJob
+//   FlexonBenchmarks.FlexonSerializeEncrypted: DefaultJob
+//   FlexonBenchmarks.JsonDeserialize: DefaultJob
+//   FlexonBenchmarks.FlexonDeserialize: DefaultJob
+//   FlexonBenchmarks.FlexonDeserializeEncrypted: DefaultJob
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.JsonSerialize: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 2012 1644 --benchmarkName Benchmarking.FlexonBenchmarks.JsonSerialize --job Default --benchmarkId 0 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 345800.00 ns, 345.8000 us/op
+WorkloadJitting  1: 1 op, 10726500.00 ns, 10.7265 ms/op
+
+OverheadJitting  2: 16 op, 332200.00 ns, 20.7625 us/op
+WorkloadJitting  2: 16 op, 112914300.00 ns, 7.0571 ms/op
+
+WorkloadPilot    1: 16 op, 65752300.00 ns, 4.1095 ms/op
+WorkloadPilot    2: 32 op, 132792200.00 ns, 4.1498 ms/op
+WorkloadPilot    3: 64 op, 315980800.00 ns, 4.9372 ms/op
+WorkloadPilot    4: 128 op, 361882300.00 ns, 2.8272 ms/op
+WorkloadPilot    5: 256 op, 636378500.00 ns, 2.4859 ms/op
+
+OverheadWarmup   1: 256 op, 18800.00 ns, 73.4375 ns/op
+OverheadWarmup   2: 256 op, 1700.00 ns, 6.6406 ns/op
+OverheadWarmup   3: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadWarmup   4: 256 op, 2200.00 ns, 8.5938 ns/op
+OverheadWarmup   5: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadWarmup   6: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadWarmup   7: 256 op, 1700.00 ns, 6.6406 ns/op
+
+OverheadActual   1: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual   2: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual   3: 256 op, 2000.00 ns, 7.8125 ns/op
+OverheadActual   4: 256 op, 2200.00 ns, 8.5938 ns/op
+OverheadActual   5: 256 op, 2300.00 ns, 8.9844 ns/op
+OverheadActual   6: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual   7: 256 op, 2500.00 ns, 9.7656 ns/op
+OverheadActual   8: 256 op, 2300.00 ns, 8.9844 ns/op
+OverheadActual   9: 256 op, 1800.00 ns, 7.0312 ns/op
+OverheadActual  10: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual  11: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual  12: 256 op, 2700.00 ns, 10.5469 ns/op
+OverheadActual  13: 256 op, 1800.00 ns, 7.0312 ns/op
+OverheadActual  14: 256 op, 1800.00 ns, 7.0312 ns/op
+OverheadActual  15: 256 op, 2700.00 ns, 10.5469 ns/op
+OverheadActual  16: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual  17: 256 op, 1900.00 ns, 7.4219 ns/op
+OverheadActual  18: 256 op, 2200.00 ns, 8.5938 ns/op
+OverheadActual  19: 256 op, 1700.00 ns, 6.6406 ns/op
+OverheadActual  20: 256 op, 3200.00 ns, 12.5000 ns/op
+
+WorkloadWarmup   1: 256 op, 620834200.00 ns, 2.4251 ms/op
+WorkloadWarmup   2: 256 op, 617167400.00 ns, 2.4108 ms/op
+WorkloadWarmup   3: 256 op, 612729300.00 ns, 2.3935 ms/op
+WorkloadWarmup   4: 256 op, 622313300.00 ns, 2.4309 ms/op
+WorkloadWarmup   5: 256 op, 614396900.00 ns, 2.4000 ms/op
+WorkloadWarmup   6: 256 op, 607443300.00 ns, 2.3728 ms/op
+WorkloadWarmup   7: 256 op, 614925500.00 ns, 2.4021 ms/op
+WorkloadWarmup   8: 256 op, 622113600.00 ns, 2.4301 ms/op
+WorkloadWarmup   9: 256 op, 617770000.00 ns, 2.4132 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 256 op, 635273500.00 ns, 2.4815 ms/op
+WorkloadActual   2: 256 op, 630774500.00 ns, 2.4640 ms/op
+WorkloadActual   3: 256 op, 624982800.00 ns, 2.4413 ms/op
+WorkloadActual   4: 256 op, 619731300.00 ns, 2.4208 ms/op
+WorkloadActual   5: 256 op, 636009500.00 ns, 2.4844 ms/op
+WorkloadActual   6: 256 op, 628590800.00 ns, 2.4554 ms/op
+WorkloadActual   7: 256 op, 626924700.00 ns, 2.4489 ms/op
+WorkloadActual   8: 256 op, 628557500.00 ns, 2.4553 ms/op
+WorkloadActual   9: 256 op, 624625600.00 ns, 2.4399 ms/op
+WorkloadActual  10: 256 op, 617003700.00 ns, 2.4102 ms/op
+WorkloadActual  11: 256 op, 658764100.00 ns, 2.5733 ms/op
+WorkloadActual  12: 256 op, 641572800.00 ns, 2.5061 ms/op
+WorkloadActual  13: 256 op, 614073400.00 ns, 2.3987 ms/op
+WorkloadActual  14: 256 op, 622566100.00 ns, 2.4319 ms/op
+WorkloadActual  15: 256 op, 613654100.00 ns, 2.3971 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 256 op, 635271600.00 ns, 2.4815 ms/op
+WorkloadResult   2: 256 op, 630772600.00 ns, 2.4640 ms/op
+WorkloadResult   3: 256 op, 624980900.00 ns, 2.4413 ms/op
+WorkloadResult   4: 256 op, 619729400.00 ns, 2.4208 ms/op
+WorkloadResult   5: 256 op, 636007600.00 ns, 2.4844 ms/op
+WorkloadResult   6: 256 op, 628588900.00 ns, 2.4554 ms/op
+WorkloadResult   7: 256 op, 626922800.00 ns, 2.4489 ms/op
+WorkloadResult   8: 256 op, 628555600.00 ns, 2.4553 ms/op
+WorkloadResult   9: 256 op, 624623700.00 ns, 2.4399 ms/op
+WorkloadResult  10: 256 op, 617001800.00 ns, 2.4102 ms/op
+WorkloadResult  11: 256 op, 641570900.00 ns, 2.5061 ms/op
+WorkloadResult  12: 256 op, 614071500.00 ns, 2.3987 ms/op
+WorkloadResult  13: 256 op, 622564200.00 ns, 2.4319 ms/op
+WorkloadResult  14: 256 op, 613652200.00 ns, 2.3971 ms/op
+// GC:  25 25 25 91024960 256
+// Threading:  0 0 256
+
+// AfterAll
+// Benchmark Process 18400 has exited with code 0.
+
+Mean = 2.445 ms, StdErr = 0.009 ms (0.35%), N = 14, StdDev = 0.032 ms
+Min = 2.397 ms, Q1 = 2.424 ms, Median = 2.445 ms, Q3 = 2.462 ms, Max = 2.506 ms
+IQR = 0.038 ms, LowerFence = 2.366 ms, UpperFence = 2.519 ms
+ConfidenceInterval = [2.409 ms; 2.482 ms] (CI 99.9%), Margin = 0.037 ms (1.50% of Mean)
+Skewness = 0.13, Kurtosis = 1.93, MValue = 2
+
+// ** Remained 5 (83.3%) benchmark(s) to run. Estimated finish 2025-01-21 3:01 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.FlexonSerialize: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 2012 1644 --benchmarkName Benchmarking.FlexonBenchmarks.FlexonSerialize --job Default --benchmarkId 1 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 261900.00 ns, 261.9000 us/op
+Trying to find FlexonCLI.dll at: c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.FileNotFoundException: FlexonCLI not found at c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+   at Benchmarking.FlexonBenchmarks.RunFlexonCommand(String args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 102
+   at Benchmarking.FlexonBenchmarks.FlexonSerialize() in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 63
+   at BenchmarkDotNet.Autogenerated.Runnable_1.WorkloadActionNoUnroll(Int64 invokeCount) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 519
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_1.Run(IHost host, String benchmarkName) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 376
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 7744 has exited with code -1.
+
+// ** Remained 4 (66.7%) benchmark(s) to run. Estimated finish 2025-01-21 3:00 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.FlexonSerializeEncrypted: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 1520 1004 --benchmarkName Benchmarking.FlexonBenchmarks.FlexonSerializeEncrypted --job Default --benchmarkId 2 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 283500.00 ns, 283.5000 us/op
+Trying to find FlexonCLI.dll at: c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.FileNotFoundException: FlexonCLI not found at c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+   at Benchmarking.FlexonBenchmarks.RunFlexonCommand(String args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 102
+   at Benchmarking.FlexonBenchmarks.FlexonSerializeEncrypted() in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 69
+   at BenchmarkDotNet.Autogenerated.Runnable_2.WorkloadActionNoUnroll(Int64 invokeCount) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 719
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_2.Run(IHost host, String benchmarkName) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 576
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 16996 has exited with code -1.
+
+// ** Remained 3 (50.0%) benchmark(s) to run. Estimated finish 2025-01-21 2:59 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.JsonDeserialize: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 1528 1016 --benchmarkName Benchmarking.FlexonBenchmarks.JsonDeserialize --job Default --benchmarkId 3 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 635200.00 ns, 635.2000 us/op
+WorkloadJitting  1: 1 op, 40648000.00 ns, 40.6480 ms/op
+
+WorkloadPilot    1: 2 op, 13022000.00 ns, 6.5110 ms/op
+WorkloadPilot    2: 3 op, 21882800.00 ns, 7.2943 ms/op
+WorkloadPilot    3: 4 op, 26285500.00 ns, 6.5714 ms/op
+WorkloadPilot    4: 5 op, 32870900.00 ns, 6.5742 ms/op
+WorkloadPilot    5: 6 op, 53209800.00 ns, 8.8683 ms/op
+WorkloadPilot    6: 7 op, 91758200.00 ns, 13.1083 ms/op
+WorkloadPilot    7: 8 op, 62860000.00 ns, 7.8575 ms/op
+WorkloadPilot    8: 9 op, 75827800.00 ns, 8.4253 ms/op
+WorkloadPilot    9: 10 op, 82754800.00 ns, 8.2755 ms/op
+WorkloadPilot   10: 11 op, 98795000.00 ns, 8.9814 ms/op
+WorkloadPilot   11: 12 op, 88337700.00 ns, 7.3615 ms/op
+WorkloadPilot   12: 13 op, 86702200.00 ns, 6.6694 ms/op
+WorkloadPilot   13: 14 op, 89746700.00 ns, 6.4105 ms/op
+WorkloadPilot   14: 15 op, 91624000.00 ns, 6.1083 ms/op
+WorkloadPilot   15: 16 op, 99537400.00 ns, 6.2211 ms/op
+WorkloadPilot   16: 32 op, 170059000.00 ns, 5.3143 ms/op
+WorkloadPilot   17: 64 op, 254365300.00 ns, 3.9745 ms/op
+WorkloadPilot   18: 128 op, 508084400.00 ns, 3.9694 ms/op
+
+WorkloadWarmup   1: 128 op, 494733000.00 ns, 3.8651 ms/op
+WorkloadWarmup   2: 128 op, 494740100.00 ns, 3.8652 ms/op
+WorkloadWarmup   3: 128 op, 486809600.00 ns, 3.8032 ms/op
+WorkloadWarmup   4: 128 op, 490575100.00 ns, 3.8326 ms/op
+WorkloadWarmup   5: 128 op, 485592400.00 ns, 3.7937 ms/op
+WorkloadWarmup   6: 128 op, 488458000.00 ns, 3.8161 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 128 op, 488017000.00 ns, 3.8126 ms/op
+WorkloadActual   2: 128 op, 491558800.00 ns, 3.8403 ms/op
+WorkloadActual   3: 128 op, 499778500.00 ns, 3.9045 ms/op
+WorkloadActual   4: 128 op, 500884300.00 ns, 3.9132 ms/op
+WorkloadActual   5: 128 op, 504387200.00 ns, 3.9405 ms/op
+WorkloadActual   6: 128 op, 494629600.00 ns, 3.8643 ms/op
+WorkloadActual   7: 128 op, 484238700.00 ns, 3.7831 ms/op
+WorkloadActual   8: 128 op, 467129000.00 ns, 3.6494 ms/op
+WorkloadActual   9: 128 op, 482560600.00 ns, 3.7700 ms/op
+WorkloadActual  10: 128 op, 478287200.00 ns, 3.7366 ms/op
+WorkloadActual  11: 128 op, 482916900.00 ns, 3.7728 ms/op
+WorkloadActual  12: 128 op, 488826400.00 ns, 3.8190 ms/op
+WorkloadActual  13: 128 op, 458240500.00 ns, 3.5800 ms/op
+WorkloadActual  14: 128 op, 461748700.00 ns, 3.6074 ms/op
+WorkloadActual  15: 128 op, 464903100.00 ns, 3.6321 ms/op
+WorkloadActual  16: 128 op, 467219000.00 ns, 3.6501 ms/op
+WorkloadActual  17: 128 op, 472091900.00 ns, 3.6882 ms/op
+WorkloadActual  18: 128 op, 475979100.00 ns, 3.7186 ms/op
+WorkloadActual  19: 128 op, 475702700.00 ns, 3.7164 ms/op
+WorkloadActual  20: 128 op, 477637400.00 ns, 3.7315 ms/op
+WorkloadActual  21: 128 op, 467294700.00 ns, 3.6507 ms/op
+WorkloadActual  22: 128 op, 467856400.00 ns, 3.6551 ms/op
+WorkloadActual  23: 128 op, 476232500.00 ns, 3.7206 ms/op
+WorkloadActual  24: 128 op, 482951900.00 ns, 3.7731 ms/op
+WorkloadActual  25: 128 op, 479560600.00 ns, 3.7466 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 128 op, 488017000.00 ns, 3.8126 ms/op
+WorkloadResult   2: 128 op, 491558800.00 ns, 3.8403 ms/op
+WorkloadResult   3: 128 op, 499778500.00 ns, 3.9045 ms/op
+WorkloadResult   4: 128 op, 500884300.00 ns, 3.9132 ms/op
+WorkloadResult   5: 128 op, 504387200.00 ns, 3.9405 ms/op
+WorkloadResult   6: 128 op, 494629600.00 ns, 3.8643 ms/op
+WorkloadResult   7: 128 op, 484238700.00 ns, 3.7831 ms/op
+WorkloadResult   8: 128 op, 467129000.00 ns, 3.6494 ms/op
+WorkloadResult   9: 128 op, 482560600.00 ns, 3.7700 ms/op
+WorkloadResult  10: 128 op, 478287200.00 ns, 3.7366 ms/op
+WorkloadResult  11: 128 op, 482916900.00 ns, 3.7728 ms/op
+WorkloadResult  12: 128 op, 488826400.00 ns, 3.8190 ms/op
+WorkloadResult  13: 128 op, 458240500.00 ns, 3.5800 ms/op
+WorkloadResult  14: 128 op, 461748700.00 ns, 3.6074 ms/op
+WorkloadResult  15: 128 op, 464903100.00 ns, 3.6321 ms/op
+WorkloadResult  16: 128 op, 467219000.00 ns, 3.6501 ms/op
+WorkloadResult  17: 128 op, 472091900.00 ns, 3.6882 ms/op
+WorkloadResult  18: 128 op, 475979100.00 ns, 3.7186 ms/op
+WorkloadResult  19: 128 op, 475702700.00 ns, 3.7164 ms/op
+WorkloadResult  20: 128 op, 477637400.00 ns, 3.7315 ms/op
+WorkloadResult  21: 128 op, 467294700.00 ns, 3.6507 ms/op
+WorkloadResult  22: 128 op, 467856400.00 ns, 3.6551 ms/op
+WorkloadResult  23: 128 op, 476232500.00 ns, 3.7206 ms/op
+WorkloadResult  24: 128 op, 482951900.00 ns, 3.7731 ms/op
+WorkloadResult  25: 128 op, 479560600.00 ns, 3.7466 ms/op
+// GC:  47 33 18 214291192 128
+// Threading:  0 0 128
+
+// AfterAll
+// Benchmark Process 19096 has exited with code 0.
+
+Mean = 3.747 ms, StdErr = 0.020 ms (0.52%), N = 25, StdDev = 0.098 ms
+Min = 3.580 ms, Q1 = 3.655 ms, Median = 3.737 ms, Q3 = 3.813 ms, Max = 3.941 ms
+IQR = 0.158 ms, LowerFence = 3.419 ms, UpperFence = 4.049 ms
+ConfidenceInterval = [3.674 ms; 3.820 ms] (CI 99.9%), Margin = 0.073 ms (1.95% of Mean)
+Skewness = 0.27, Kurtosis = 2.11, MValue = 2
+
+// ** Remained 2 (33.3%) benchmark(s) to run. Estimated finish 2025-01-21 3:00 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.FlexonDeserialize: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 1748 1644 --benchmarkName Benchmarking.FlexonBenchmarks.FlexonDeserialize --job Default --benchmarkId 4 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 283700.00 ns, 283.7000 us/op
+Trying to find FlexonCLI.dll at: c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.FileNotFoundException: FlexonCLI not found at c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+   at Benchmarking.FlexonBenchmarks.RunFlexonCommand(String args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 102
+   at Benchmarking.FlexonBenchmarks.FlexonDeserialize() in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 82
+   at BenchmarkDotNet.Autogenerated.Runnable_4.WorkloadActionNoUnroll(Int64 invokeCount) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 1119
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_4.Run(IHost host, String benchmarkName) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 976
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 17992 has exited with code -1.
+
+// ** Remained 1 (16.7%) benchmark(s) to run. Estimated finish 2025-01-21 3:00 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: FlexonBenchmarks.FlexonDeserializeEncrypted: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 499911bd-4cd7-4d10-ad5f-98211b48112e.dll --anonymousPipes 1716 2000 --benchmarkName Benchmarking.FlexonBenchmarks.FlexonDeserializeEncrypted --job Default --benchmarkId 5 in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 270800.00 ns, 270.8000 us/op
+Trying to find FlexonCLI.dll at: c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+
+System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation.
+ ---> System.IO.FileNotFoundException: FlexonCLI not found at c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\FlexonCLI\bin\Release\net8.0\FlexonCLI.dll
+   at Benchmarking.FlexonBenchmarks.RunFlexonCommand(String args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 102
+   at Benchmarking.FlexonBenchmarks.FlexonDeserializeEncrypted() in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\Program.cs:line 88
+   at BenchmarkDotNet.Autogenerated.Runnable_5.WorkloadActionNoUnroll(Int64 invokeCount) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 1319
+   at BenchmarkDotNet.Engines.Engine.RunIteration(IterationData data)
+   at BenchmarkDotNet.Engines.EngineFactory.Jit(Engine engine, Int32 jitIndex, Int32 invokeCount, Int32 unrollFactor)
+   at BenchmarkDotNet.Engines.EngineFactory.CreateReadyToRun(EngineParameters engineParameters)
+   at BenchmarkDotNet.Autogenerated.Runnable_5.Run(IHost host, String benchmarkName) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 1176
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at BenchmarkDotNet.Autogenerated.UniqueProgramName.AfterAssemblyLoadingAttached(String[] args) in c:\Users\Administrator\source\repos\FlexonCLI\Examples\CSharp\Benchmarking\bin\Release\net8.0\499911bd-4cd7-4d10-ad5f-98211b48112e\499911bd-4cd7-4d10-ad5f-98211b48112e.notcs:line 57
+// AfterAll
+No Workload Results were obtained from the run.
+// Benchmark Process 15452 has exited with code -1.
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2025-01-21 2:59 (0h 0m from now) **
+Successfully reverted power plan (GUID: 51a64abc-c70f-4f6c-a0c5-01cf195fd8e5 FriendlyName: ChrisTitus - Ultimate Power Plan)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Benchmarking.FlexonBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Benchmarking.FlexonBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Benchmarking.FlexonBenchmarks-report.html
+
+// * Detailed results *
+FlexonBenchmarks.JsonSerialize: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 2.445 ms, StdErr = 0.009 ms (0.35%), N = 14, StdDev = 0.032 ms
+Min = 2.397 ms, Q1 = 2.424 ms, Median = 2.445 ms, Q3 = 2.462 ms, Max = 2.506 ms
+IQR = 0.038 ms, LowerFence = 2.366 ms, UpperFence = 2.519 ms
+ConfidenceInterval = [2.409 ms; 2.482 ms] (CI 99.9%), Margin = 0.037 ms (1.50% of Mean)
+Skewness = 0.13, Kurtosis = 1.93, MValue = 2
+-------------------- Histogram --------------------
+[2.379 ms ; 2.519 ms) | @@@@@@@@@@@@@@
+---------------------------------------------------
+
+FlexonBenchmarks.FlexonSerialize: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+FlexonBenchmarks.FlexonSerializeEncrypted: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+FlexonBenchmarks.JsonDeserialize: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+Mean = 3.747 ms, StdErr = 0.020 ms (0.52%), N = 25, StdDev = 0.098 ms
+Min = 3.580 ms, Q1 = 3.655 ms, Median = 3.737 ms, Q3 = 3.813 ms, Max = 3.941 ms
+IQR = 0.158 ms, LowerFence = 3.419 ms, UpperFence = 4.049 ms
+ConfidenceInterval = [3.674 ms; 3.820 ms] (CI 99.9%), Margin = 0.073 ms (1.95% of Mean)
+Skewness = 0.27, Kurtosis = 2.11, MValue = 2
+-------------------- Histogram --------------------
+[3.574 ms ; 3.661 ms) | @@@@@@@
+[3.661 ms ; 3.794 ms) | @@@@@@@@@@@
+[3.794 ms ; 3.882 ms) | @@@@
+[3.882 ms ; 3.984 ms) | @@@
+---------------------------------------------------
+
+FlexonBenchmarks.FlexonDeserialize: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+FlexonBenchmarks.FlexonDeserializeEncrypted: DefaultJob
+Runtime = .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2; GC = Concurrent Workstation
+There are not any results runs
+
+// * Summary *
+
+BenchmarkDotNet=v0.13.5, OS=Windows 10 (10.0.19045.5371/22H2/2022Update)
+Intel Core i5-6400 CPU 2.70GHz (Skylake), 1 CPU, 4 logical and 4 physical cores
+.NET SDK=8.0.300
+  [Host]     : .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+  DefaultJob : .NET 8.0.5 (8.0.524.21615), X64 RyuJIT AVX2
+
+
+|                     Method |     Mean |     Error |    StdDev | Ratio | RatioSD |     Gen0 |     Gen1 |     Gen2 | Allocated | Alloc Ratio |
+|--------------------------- |---------:|----------:|----------:|------:|--------:|---------:|---------:|---------:|----------:|------------:|
+|              JsonSerialize | 2.445 ms | 0.0366 ms | 0.0324 ms |  1.00 |    0.00 |  97.6563 |  97.6563 |  97.6563 |  355566 B |        1.00 |
+|            FlexonSerialize |       NA |        NA |        NA |     ? |       ? |        - |        - |        - |         - |           ? |
+|   FlexonSerializeEncrypted |       NA |        NA |        NA |     ? |       ? |        - |        - |        - |         - |           ? |
+|            JsonDeserialize | 3.747 ms | 0.0731 ms | 0.0976 ms |  1.55 |    0.04 | 367.1875 | 257.8125 | 140.6250 | 1674150 B |        4.71 |
+|          FlexonDeserialize |       NA |        NA |        NA |     ? |       ? |        - |        - |        - |         - |           ? |
+| FlexonDeserializeEncrypted |       NA |        NA |        NA |     ? |       ? |        - |        - |        - |         - |           ? |
+
+Benchmarks with issues:
+  FlexonBenchmarks.FlexonSerialize: DefaultJob
+  FlexonBenchmarks.FlexonSerializeEncrypted: DefaultJob
+  FlexonBenchmarks.FlexonDeserialize: DefaultJob
+  FlexonBenchmarks.FlexonDeserializeEncrypted: DefaultJob
+
+// * Warnings *
+BaselineCustomAnalyzer
+  Summary -> A question mark '?' symbol indicates that it was not possible to compute the (Ratio, RatioSD, Alloc Ratio) column(s) because the baseline value is too close to zero.
+Environment
+  Summary -> Detected error exit code from one of the benchmarks. It might be caused by following antivirus software:
+        - Windows Defender (windowsdefender://)
+Use InProcessEmitToolchain or InProcessNoEmitToolchain to avoid new process creation.
+
+
+// * Hints *
+Outliers
+  FlexonBenchmarks.JsonSerialize: Default -> 1 outlier  was  removed (2.57 ms)
+
+// * Legends *
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  StdDev      : Standard deviation of all measurements
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD     : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  Gen0        : GC Generation 0 collects per 1000 operations
+  Gen1        : GC Generation 1 collects per 1000 operations
+  Gen2        : GC Generation 2 collects per 1000 operations
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms        : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:38 (38.75 sec), executed benchmarks: 6
+
+Global total time: 00:00:53 (53.16 sec), executed benchmarks: 6
+// * Artifacts cleanup *

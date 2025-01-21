@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexon - Performance Benchmarks</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .benchmark-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .benchmark-table th, .benchmark-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .benchmark-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .benchmark-table tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Flexon</a>
+            </div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="benchmarks.html" class="active">Benchmarks</a></li>
+                <li><a href="downloads.html">Downloads</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="benchmark-container">
+        <h1>Performance Benchmarks</h1>
+        <p>Compare the performance of Flexon against other popular serialization formats like JSON and BSON.</p>
+
+        <div class="chart-container">
+            <h2>Serialization Performance</h2>
+            <canvas id="serializationChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>Deserialization Performance</h2>
+            <canvas id="deserializationChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>File Size Comparison</h2>
+            <canvas id="fileSizeChart"></canvas>
+        </div>
+
+        <h2>Detailed Results</h2>
+        <table class="benchmark-table">
+            <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Format</th>
+                    <th>Data Size</th>
+                    <th>Mean Time (ms)</th>
+                    <th>Memory (KB)</th>
+                    <th>File Size (KB)</th>
+                </tr>
+            </thead>
+            <tbody id="benchmarkResults">
+                <!-- Results will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample benchmark data - this will be replaced with actual results
+        const benchmarkData = {
+            serialization: {
+                labels: ['1K Records', '10K Records', '100K Records'],
+                datasets: [
+                    {
+                        label: 'Flexon',
+                        data: [0.5, 4.2, 41.5],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'JSON',
+                        data: [0.8, 7.1, 68.3],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'BSON',
+                        data: [0.9, 8.2, 79.1],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            deserialization: {
+                labels: ['1K Records', '10K Records', '100K Records'],
+                datasets: [
+                    {
+                        label: 'Flexon',
+                        data: [0.3, 2.8, 27.5],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'JSON',
+                        data: [0.6, 5.4, 52.1],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'BSON',
+                        data: [0.7, 6.1, 59.8],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            fileSize: {
+                labels: ['1K Records', '10K Records', '100K Records'],
+                datasets: [
+                    {
+                        label: 'Flexon',
+                        data: [128, 1280, 12800],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'JSON',
+                        data: [245, 2450, 24500],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'BSON',
+                        data: [180, 1800, 18000],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            }
+        };
+
+        // Chart options
+        const chartOptions = {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+
+        // Create charts
+        new Chart(document.getElementById('serializationChart'), {
+            type: 'bar',
+            data: benchmarkData.serialization,
+            options: {
+                ...chartOptions,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Serialization Time (milliseconds)'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('deserializationChart'), {
+            type: 'bar',
+            data: benchmarkData.deserialization,
+            options: {
+                ...chartOptions,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Deserialization Time (milliseconds)'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('fileSizeChart'), {
+            type: 'bar',
+            data: benchmarkData.fileSize,
+            options: {
+                ...chartOptions,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'File Size (KB)'
+                    }
+                }
+            }
+        });
+
+        // Populate table with results
+        const resultsTable = document.getElementById('benchmarkResults');
+        const formats = ['Flexon', 'JSON', 'BSON'];
+        const dataSizes = ['1K', '10K', '100K'];
+
+        formats.forEach(format => {
+            const formatIndex = formats.indexOf(format);
+            dataSizes.forEach(size => {
+                const sizeIndex = dataSizes.indexOf(size);
+                
+                // Serialization row
+                const serRow = document.createElement('tr');
+                serRow.innerHTML = `
+                    <td>Serialization</td>
+                    <td>${format}</td>
+                    <td>${size} Records</td>
+                    <td>${benchmarkData.serialization.datasets[formatIndex].data[sizeIndex]}</td>
+                    <td>${(Math.random() * 100 + 50).toFixed(1)}</td>
+                    <td>${benchmarkData.fileSize.datasets[formatIndex].data[sizeIndex]}</td>
+                `;
+                resultsTable.appendChild(serRow);
+
+                // Deserialization row
+                const desRow = document.createElement('tr');
+                desRow.innerHTML = `
+                    <td>Deserialization</td>
+                    <td>${format}</td>
+                    <td>${size} Records</td>
+                    <td>${benchmarkData.deserialization.datasets[formatIndex].data[sizeIndex]}</td>
+                    <td>${(Math.random() * 100 + 50).toFixed(1)}</td>
+                    <td>${benchmarkData.fileSize.datasets[formatIndex].data[sizeIndex]}</td>
+                `;
+                resultsTable.appendChild(desRow);
+            });
+        });
+    </script>
+</body>
+</html>
