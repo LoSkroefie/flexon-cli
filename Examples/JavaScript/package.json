@@ -1,0 +1,22 @@
+{
+  "name": "flexon-examples",
+  "version": "1.0.0",
+  "description": "Flexon JavaScript Examples",
+  "scripts": {
+    "basic": "node BasicUsage/basic_usage.js",
+    "game": "node GameState/game_state.js",
+    "ai": "node AIData/ai_data.js",
+    "config": "node SecureConfig/secure_config.js",
+    "benchmark": "node Benchmarking/benchmark.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "canvas": "^2.11.0",
+    "dotenv": "^16.0.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "benchmark": "^2.1.4",
+    "jest": "^29.5.0"
+  }
+}

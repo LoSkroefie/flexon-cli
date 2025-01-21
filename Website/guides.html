@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FLEXON CLI Utility: A revolutionary binary format for faster and more efficient data serialization, storage, and transfer.">
+    <meta name="keywords" content="FLEXON CLI, JSON alternative, data serialization, binary format, JVR Software, tutorials, examples, guides, contact">
+    <meta name="author" content="JVR Software">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="FLEXON CLI Utility - Revolutionize Data Serialization">
+    <meta property="og:description" content="FLEXON CLI: Compact, fast, and efficient binary data format. Learn how to use FLEXON CLI with examples, tutorials, and guides.">
+    <meta property="og:url" content="https://jvrsoftware.co.za/flexon-cli">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://jvrsoftware.co.za/images/flexon-cli-thumbnail.png">
+    <title>Guides - FLEXON CLI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>FLEXON CLI - Guides</h1>
+    <nav>
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a>
+	<a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">Download</a>
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a>
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a>
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a>
+	<a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a>
+        <a href="contact.html" title="Contact - Get in Touch with FLEXON CLI Support">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h2>Comprehensive FLEXON Guides</h2>
+        <p>This guide provides detailed information on creating schemas, validating and debugging FLEXON data, and leveraging advanced features of the CLI.</p>
+
+        <h3>1. Writing Schemas</h3>
+        <p>Schemas are JSON-like structures that define the expected structure and types of FLEXON data. Here’s an example schema:</p>
+        <pre>
+{
+    "type": "object",
+    "properties": {
+        "name": { "type": "string", "minLength": 3 },
+        "age": { "type": "integer", "minimum": 0 },
+        "email": { "type": "string", "format": "email" }
+    },
+    "required": ["name", "age"]
+}
+        </pre>
+        <p>
+            <strong>Explanation:</strong>
+            <ul>
+                <li><strong>type:</strong> Defines the data type (e.g., "object", "string", "integer").</li>
+                <li><strong>properties:</strong> Lists the fields in the object and their validation rules.</li>
+                <li><strong>required:</strong> Specifies which fields are mandatory.</li>
+                <li><strong>Constraints:</strong> Additional constraints like <code>minLength</code>, <code>maximum</code>, or <code>format</code>.</li>
+            </ul>
+        </p>
+        <p>Save this schema as a JSON file (e.g., <code>schema.json</code>) to use for validation.</p>
+
+        <h3>2. Validating FLEXON Data</h3>
+        <p>FLEXON CLI can validate data against schemas to ensure correctness. Here’s how:</p>
+        <ol>
+            <li>Prepare a FLEXON file (e.g., <code>input.flexon</code>).</li>
+            <li>Run the validation command:
+                <pre>
+flexon-cli validate input.flexon schema.json
+                </pre>
+            </li>
+            <li>The CLI will output the validation result. If the data fails validation, detailed error messages will be displayed.</li>
+        </ol>
+        <p>
+            <strong>Example Output:</strong>
+            <pre>
+Validation failed:
+  - Property 'name': Length 2 is less than minimum 3.
+  - Property 'age': Missing required property.
+            </pre>
+        </p>
+
+        <h3>3. Debugging FLEXON Data</h3>
+        <p>The `inspect` command lets you examine FLEXON binary data in a human-readable format:</p>
+        <ol>
+            <li>Run the inspect command:
+                <pre>
+flexon-cli inspect input.flexon [output.json]
+                </pre>
+            </li>
+            <li>If <code>output.json</code> is provided, the inspected data will be saved to a file; otherwise, it will be displayed in the terminal.</li>
+            <li>Use this command to troubleshoot issues with FLEXON data during development.</li>
+        </ol>
+
+        <h3>4. Advanced Features</h3>
+        <h4>4.1 Compression</h4>
+        <p>FLEXON CLI supports GZIP compression for smaller file sizes. Use the <code>--compress</code> flag during encoding:</p>
+        <pre>
+flexon-cli encode --compress input.json output.flexon
+        </pre>
+
+        <h4>4.2 Verbose Mode</h4>
+        <p>Enable verbose mode to get detailed logs of the encoding or decoding process:</p>
+        <pre>
+flexon-cli encode --verbose input.json output.flexon
+        </pre>
+
+        <h4>4.3 Depth Limiting</h4>
+        <p>To prevent stack overflow errors, FLEXON CLI supports depth limiting for deeply nested data. The default limit is 100 levels.</p>
+        <p>You can adjust the depth limit by modifying the source code or extending the CLI with custom arguments.</p>
+
+        <h3>5. FLEXON CLI Best Practices</h3>
+        <ul>
+            <li><strong>Always Validate Data:</strong> Use schemas to catch data structure issues early.</li>
+            <li><strong>Inspect Before Debugging:</strong> Use the `inspect` command to examine data visually.</li>
+            <li><strong>Optimize File Sizes:</strong> Enable GZIP compression for large datasets.</li>
+            <li><strong>Log Everything:</strong> Use verbose mode to troubleshoot encoding or decoding errors.</li>
+        </ul>
+
+        <h3>6. Integrating FLEXON into Your Workflow</h3>
+        <p>FLEXON CLI is designed to seamlessly integrate into CI/CD pipelines, automated data processing scripts, and cross-platform applications. Here's a quick integration example for automation:</p>
+        <pre>
+# Bash Script for Automated Encoding and Validation
+#!/bin/bash
+
+# Encode JSON to FLEXON
+flexon-cli encode input.json output.flexon
+
+# Validate the FLEXON file
+flexon-cli validate output.flexon schema.json
+
+# Inspect the FLEXON file
+flexon-cli inspect output.flexon debug_output.json
+        </pre>
+
+        <p>Use this example to automate your FLEXON workflows and ensure consistent data integrity.</p>
+    </div>
+</main>
+
+<footer>
+    <nav class="footer-menu">
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a> |
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a> |
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a> |
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a> |
+        <a href="marketing.html" title="Why FLEXON?">Marketing</a> |
+        <a href="fun.html" title="Flexon vs JSON - The Fun Chase">Flexon vs JSON</a> |
+        <a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a> |
+        <a href="contact.html" title="Contact FLEXON CLI Support">Contact</a> |
+        <a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">GitHub</a>
+    </nav>
+    <p>&copy; 2025 JVR Software. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

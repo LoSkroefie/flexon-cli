@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to implement FLEXON CLI into your projects with step-by-step tutorials for Python, VB.NET, Java, Node.js, and more.">
+    <meta name="keywords" content="FLEXON CLI, tutorials, Python, VB.NET, Java, Node.js, CLI integration, data serialization">
+    <meta name="author" content="JVR Software">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="FLEXON CLI Tutorials - Learn and Implement">
+    <meta property="og:description" content="Step-by-step FLEXON CLI tutorials for various programming languages. Integrate FLEXON for efficient data serialization.">
+    <meta property="og:url" content="https://jvrsoftware.co.za/flexon-cli-tutorials">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://jvrsoftware.co.za/images/flexon-cli-thumbnail.png">
+    <title>Tutorials - FLEXON CLI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>FLEXON CLI - Tutorials</h1>
+    <nav>
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a>
+	<a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">Download</a>
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a>
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a>
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a>
+	<a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a>
+        <a href="contact.html" title="Contact - Get in Touch with FLEXON CLI Support">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h2>FLEXON CLI Tutorials</h2>
+        <p>This tutorial teaches you how to implement FLEXON CLI in your projects using various programming languages. Each section explains how to use CLI commands for encoding, decoding, inspecting, and validating data in FLEXON format.</p>
+
+        <h3>1. Understanding FLEXON CLI Commands</h3>
+        <p>Start by familiarizing yourself with the core FLEXON CLI commands:</p>
+        <ul>
+            <li><strong>Encoding:</strong> Convert JSON to FLEXON binary format.
+                <pre><code>flexon-cli encode input.json output.flexon</code></pre>
+            </li>
+            <li><strong>Decoding:</strong> Convert FLEXON binary back to JSON.
+                <pre><code>flexon-cli decode input.flexon output.json</code></pre>
+            </li>
+            <li><strong>Inspecting:</strong> View the structure and content of a FLEXON file.
+                <pre><code>flexon-cli inspect input.flexon</code></pre>
+            </li>
+            <li><strong>Validating:</strong> Check if a FLEXON file matches a schema.
+                <pre><code>flexon-cli validate input.flexon schema.json</code></pre>
+            </li>
+        </ul>
+
+        <h3>2. Python Integration</h3>
+        <p>Follow these steps to integrate FLEXON CLI in Python:</p>
+        <ol>
+            <li>Install Python from <a href="https://www.python.org/downloads/" target="_blank">python.org</a>.</li>
+            <li>Create a script named <code>flexon_example.py</code> with the following content:</li>
+            <pre><code>
+import subprocess
+
+# Encode JSON to FLEXON
+subprocess.run(["flexon-cli", "encode", "input.json", "output.flexon"])
+
+# Decode FLEXON to JSON
+subprocess.run(["flexon-cli", "decode", "output.flexon", "decoded.json"])
+            </code></pre>
+            <li>Run the script:
+                <pre><code>python flexon_example.py</code></pre>
+            </li>
+        </ol>
+
+        <h3>3. VB.NET Integration</h3>
+        <ol>
+            <li>Open Visual Studio and create a new VB.NET Console Application.</li>
+            <li>Replace the default code with:
+                <pre><code>
+Imports System.Diagnostics
+
+Module Module1
+    Sub Main()
+        Dim command As String = "flexon-cli"
+        Dim arguments As String = "encode input.json output.flexon"
+
+        Dim startInfo As New ProcessStartInfo() With {
+            .FileName = command,
+            .Arguments = arguments,
+            .RedirectStandardOutput = True,
+            .UseShellExecute = False,
+            .CreateNoWindow = True
+        }
+
+        Using process As Process = Process.Start(startInfo)
+            Dim result As String = process.StandardOutput.ReadToEnd()
+            Console.WriteLine(result)
+        End Using
+    End Sub
+End Module
+                </code></pre>
+            </li>
+            <li>Run the application to test the encoding process.</li>
+        </ol>
+
+        <h3>4. Java Integration</h3>
+        <p>Use the following steps for Java:</p>
+        <ol>
+            <li>Create a file named <code>FlexonExample.java</code> with the following content:</li>
+            <pre><code>
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+public class FlexonExample {
+    public static void main(String[] args) {
+        try {
+            String command = "flexon-cli encode input.json output.flexon";
+            Process process = Runtime.getRuntime().exec(command);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+            </code></pre>
+            <li>Compile and run the program:
+                <pre><code>javac FlexonExample.java && java FlexonExample</code></pre>
+            </li>
+        </ol>
+
+        <h3>5. Node.js Integration</h3>
+        <p>To use FLEXON CLI in a Node.js project:</p>
+        <ol>
+            <li>Create a file named <code>flexon_example.js</code> and add this code:</li>
+            <pre><code>
+const { exec } = require('child_process');
+
+// Encode JSON to FLEXON
+exec('flexon-cli encode input.json output.flexon', (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Error: ${error.message}`);
+        return;
+    }
+    console.log(`Output: ${stdout}`);
+});
+            </code></pre>
+            <li>Run the script using:
+                <pre><code>node flexon_example.js</code></pre>
+            </li>
+        </ol>
+
+
+<h3>PHP Tutorial</h3>
+<p>Integrate FLEXON CLI in a PHP application by executing system commands:</p>
+<ol>
+    <li>Ensure FLEXON CLI is installed and available in your system's PATH.</li>
+    <li>Create a PHP script (e.g., <code>flexon_example.php</code>) and add the following code:</li>
+    <pre>
+&lt;?php
+// Encode JSON to FLEXON
+$output = shell_exec('flexon-cli encode input.json output.flexon');
+echo "Encode Output: " . $output . "\n";
+
+// Decode FLEXON to JSON
+$output = shell_exec('flexon-cli decode output.flexon decoded.json');
+echo "Decode Output: " . $output . "\n";
+?&gt;
+    </pre>
+    <li>Run the script:</li>
+    <pre>php flexon_example.php</pre>
+</ol>
+
+<h3>Ruby Tutorial</h3>
+<p>Integrate FLEXON CLI in a Ruby application by using system calls:</p>
+<ol>
+    <li>Ensure FLEXON CLI is installed and available in your system's PATH.</li>
+    <li>Create a Ruby script (e.g., <code>flexon_example.rb</code>) and add the following code:</li>
+    <pre>
+# Encode JSON to FLEXON
+encode_output = `flexon-cli encode input.json output.flexon`
+puts "Encode Output: #{encode_output}"
+
+# Decode FLEXON to JSON
+decode_output = `flexon-cli decode output.flexon decoded.json`
+puts "Decode Output: #{decode_output}"
+    </pre>
+    <li>Run the script:</li>
+    <pre>ruby flexon_example.rb</pre>
+</ol>
+
+
+        <h3>6. Advanced Usage</h3>
+        <p>Learn how to enhance your application with these advanced FLEXON CLI features:</p>
+        <ul>
+            <li><strong>Validation:</strong> Integrate schema validation for your data formats.</li>
+            <li><strong>Inspection:</strong> Debug your binary data for structural issues.</li>
+            <li><strong>Compression:</strong> Optimize file sizes with built-in GZIP support.</li>
+        </ul>
+
+    </div>
+</main>
+
+<footer>
+    <nav class="footer-menu">
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a> |
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a> |
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a> |
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a> |
+        <a href="marketing.html" title="Why FLEXON?">Marketing</a> |
+        <a href="fun.html" title="Flexon vs JSON - The Fun Chase">Flexon vs JSON</a> |
+        <a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a> |
+        <a href="contact.html" title="Contact FLEXON CLI Support">Contact</a> |
+        <a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">GitHub</a>
+    </nav>
+    <p>&copy; 2025 JVR Software. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Comprehensive examples for using FLEXON CLI features including encoding, decoding, inspecting, validating, and working with datasets in various programming languages.">
+    <meta name="keywords" content="FLEXON CLI, Python, VB.NET, Java, Node.js, PHP, Ruby, JSON, FLEXON examples, encoding, decoding, inspecting, validating">
+    <meta name="author" content="JVR Software">
+    <meta name="robots" content="index, follow">
+    <title>Examples - FLEXON CLI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>FLEXON CLI - Examples</h1>
+    <nav>
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a>
+	<a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">Download</a>
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a>
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a>
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a>
+	<a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a>
+        <a href="contact.html" title="Contact - Get in Touch with FLEXON CLI Support">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h2>FLEXON CLI Comprehensive Examples</h2>
+        <p>This page provides detailed examples for each feature of FLEXON CLI across multiple programming languages. Each feature is demonstrated with both JSON and direct data encoding/decoding where applicable.</p>
+
+        <!-- Encoding Section -->
+        <h3>1. Encoding Data to FLEXON</h3>
+        <p><strong>Description:</strong> Learn how to encode data structures like arrays, dictionaries, or custom objects into FLEXON binary format. Examples are provided with JSON and without JSON.</p>
+
+        <h4>Python: Encoding with JSON</h4>
+        <pre>
+import gzip
+import json
+
+# Read JSON from a file
+with open("input.json", "r") as json_file:
+    json_data = json_file.read()
+
+# Convert JSON to FLEXON binary and save to file
+with gzip.open("output.flexon", "wb") as flexon_file:
+    flexon_file.write(json_data.encode("utf-8"))
+
+print("JSON encoded to FLEXON successfully.")
+        </pre>
+
+        <h4>Python: Encoding Without JSON</h4>
+        <pre>
+import gzip
+
+# Example dictionary
+data = {"ID": 1, "Name": "Alice"}
+
+# Convert dictionary to FLEXON binary and save to file
+with gzip.open("output.flexon", "wb") as flexon_file:
+    flexon_file.write(b'\x0A')  # Start of object marker
+
+    for key, value in data.items():
+        flexon_file.write(b'\x05')  # String key
+        key_bytes = key.encode("utf-8")
+        flexon_file.write(len(key_bytes).to_bytes(4, 'little'))
+        flexon_file.write(key_bytes)
+
+        if isinstance(value, int):
+            flexon_file.write(b'\x03')  # Integer value
+            flexon_file.write(value.to_bytes(4, 'little'))
+        elif isinstance(value, str):
+            flexon_file.write(b'\x05')  # String value
+            value_bytes = value.encode("utf-8")
+            flexon_file.write(len(value_bytes).to_bytes(4, 'little'))
+            flexon_file.write(value_bytes)
+
+    flexon_file.write(b'\x00')  # End of object marker
+
+print("Dictionary encoded to FLEXON successfully.")
+        </pre>
+
+        <h4>VB.NET: Encoding with JSON</h4>
+        <pre>
+Imports System.IO
+Imports System.IO.Compression
+
+Module Program
+    Sub Main()
+        Dim jsonInput As String = File.ReadAllText("input.json")
+
+        Using flexonFile As New FileStream("output.flexon", FileMode.Create)
+            Using compressedStream As New GZipStream(flexonFile, CompressionMode.Compress)
+                Using writer As New StreamWriter(compressedStream)
+                    writer.Write(jsonInput)
+                End Using
+            End Using
+        End Using
+
+        Console.WriteLine("JSON encoded to FLEXON successfully.")
+    End Sub
+End Module
+        </pre>
+
+        <h4>VB.NET: Encoding Without JSON</h4>
+        <pre>
+Imports System.IO
+Imports System.IO.Compression
+
+Module Program
+    Sub Main()
+        Dim data As New Dictionary(Of String, Object) From {
+            {"ID", 1},
+            {"Name", "Alice"}
+        }
+
+        Using flexonFile As New FileStream("output.flexon", FileMode.Create)
+            Using compressedStream As New GZipStream(flexonFile, CompressionMode.Compress)
+                Using writer As New BinaryWriter(compressedStream)
+                    writer.Write(&HA) ' Start object marker
+
+                    For Each kvp In data
+                        writer.Write(&H5) ' String key
+                        Dim keyBytes = System.Text.Encoding.UTF8.GetBytes(kvp.Key)
+                        writer.Write(keyBytes.Length)
+                        writer.Write(keyBytes)
+
+                        If TypeOf kvp.Value Is Integer Then
+                            writer.Write(&H3) ' Integer value
+                            writer.Write(CInt(kvp.Value))
+                        ElseIf TypeOf kvp.Value Is String Then
+                            writer.Write(&H5) ' String value
+                            Dim valueBytes = System.Text.Encoding.UTF8.GetBytes(CStr(kvp.Value))
+                            writer.Write(valueBytes.Length)
+                            writer.Write(valueBytes)
+                        End If
+                    Next
+
+                    writer.Write(&H0) ' End object marker
+                End Using
+            End Using
+        End Using
+
+        Console.WriteLine("Dictionary encoded to FLEXON successfully.")
+    End Sub
+End Module
+        </pre>
+
+        <h4>Java: Encoding with JSON</h4>
+        <pre>
+import java.io.*;
+import java.util.zip.GZIPOutputStream;
+
+public class JsonToFlexon {
+    public static void main(String[] args) {
+        try {
+            BufferedReader jsonReader = new BufferedReader(new FileReader("input.json"));
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = jsonReader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            jsonReader.close();
+
+            FileOutputStream fileOut = new FileOutputStream("output.flexon");
+            GZIPOutputStream gzipOut = new GZIPOutputStream(fileOut);
+            gzipOut.write(jsonContent.toString().getBytes("UTF-8"));
+            gzipOut.close();
+
+            System.out.println("JSON encoded to FLEXON successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+        </pre>
+
+        <h4>Java: Encoding Without JSON</h4>
+        <pre>
+import java.io.*;
+import java.util.zip.GZIPOutputStream;
+
+public class DictionaryToFlexon {
+    public static void main(String[] args) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream("output.flexon");
+            GZIPOutputStream gzipOut = new GZIPOutputStream(fileOut);
+            DataOutputStream writer = new DataOutputStream(gzipOut);
+
+            writer.writeByte(0x0A); // Start of object marker
+
+            String[] keys = {"ID", "Name"};
+            Object[] values = {1, "Alice"};
+
+            for (int i = 0; i < keys.length; i++) {
+                writer.writeByte(0x05); // String key
+                writer.writeInt(keys[i].length());
+                writer.writeBytes(keys[i]);
+
+                if (values[i] instanceof Integer) {
+                    writer.writeByte(0x03); // Integer value
+                    writer.writeInt((Integer) values[i]);
+                } else if (values[i] instanceof String) {
+                    writer.writeByte(0x05); // String value
+                    String value = (String) values[i];
+                    writer.writeInt(value.length());
+                    writer.writeBytes(value);
+                }
+            }
+
+            writer.writeByte(0x00); // End of object marker
+            writer.close();
+
+            System.out.println("Dictionary encoded to FLEXON successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+        </pre>
+
+        <h4>Node.js: Encoding Without JSON</h4>
+<pre>
+const fs = require('fs');
+const zlib = require('zlib');
+
+// Sample data to encode
+const data = { ID: 1, Name: "Alice" };
+
+// Create a FLEXON binary file
+const flexonFile = fs.createWriteStream("output.flexon");
+const gzip = zlib.createGzip();
+gzip.pipe(flexonFile);
+
+// Write start of object marker
+gzip.write(Buffer.from([0x0A]));
+
+// Write each key-value pair
+for (const [key, value] of Object.entries(data)) {
+    // Write key as string
+    const keyBuffer = Buffer.from(key, 'utf-8');
+    gzip.write(Buffer.from([0x05])); // String type
+    gzip.write(Buffer.alloc(4, keyBuffer.length)); // Length of key
+    gzip.write(keyBuffer); // Key value
+
+    // Write value based on type
+    if (typeof value === 'number') {
+        gzip.write(Buffer.from([0x03])); // Integer type
+        gzip.write(Buffer.alloc(4, value)); // Integer value
+    } else if (typeof value === 'string') {
+        const valueBuffer = Buffer.from(value, 'utf-8');
+        gzip.write(Buffer.from([0x05])); // String type
+        gzip.write(Buffer.alloc(4, valueBuffer.length)); // Length of value
+        gzip.write(valueBuffer); // String value
+    }
+}
+
+// Write end of object marker
+gzip.write(Buffer.from([0x00]));
+gzip.end();
+
+console.log("Dictionary encoded to FLEXON successfully.");
+</pre>
+
+<h4>PHP: Encoding Without JSON</h4>
+<pre>
+<?php
+// Sample data to encode
+$data = [
+    "ID" => 1,
+    "Name" => "Alice"
+];
+
+// Open FLEXON binary file
+$flexonFile = gzopen("output.flexon", "wb");
+
+// Write start of object marker
+gzwrite($flexonFile, chr(0x0A));
+
+// Write each key-value pair
+foreach ($data as $key => $value) {
+    // Write key as string
+    $keyLength = strlen($key);
+    gzwrite($flexonFile, chr(0x05)); // String type
+    gzwrite($flexonFile, pack("L", $keyLength)); // Length of key
+    gzwrite($flexonFile, $key); // Key value
+
+    // Write value based on type
+    if (is_int($value)) {
+        gzwrite($flexonFile, chr(0x03)); // Integer type
+        gzwrite($flexonFile, pack("L", $value)); // Integer value
+    } elseif (is_string($value)) {
+        $valueLength = strlen($value);
+        gzwrite($flexonFile, chr(0x05)); // String type
+        gzwrite($flexonFile, pack("L", $valueLength)); // Length of value
+        gzwrite($flexonFile, $value); // String value
+    }
+}
+
+// Write end of object marker
+gzwrite($flexonFile, chr(0x00));
+gzclose($flexonFile);
+
+echo "Dictionary encoded to FLEXON successfully.";
+?>
+</pre>
+
+<h4>Ruby: Encoding Without JSON</h4>
+<pre>
+require 'zlib'
+
+# Sample data to encode
+data = { ID: 1, Name: "Alice" }
+
+# Open FLEXON binary file
+Zlib::GzipWriter.open("output.flexon") do |gz|
+  # Write start of object marker
+  gz.write([0x0A].pack('C'))
+
+  # Write each key-value pair
+  data.each do |key, value|
+    # Write key as string
+    key_bytes = key.to_s.bytes
+    gz.write([0x05].pack('C')) # String type
+    gz.write([key_bytes.size].pack('L')) # Length of key
+    gz.write(key_bytes.pack('C*')) # Key value
+
+    # Write value based on type
+    if value.is_a?(Integer)
+      gz.write([0x03].pack('C')) # Integer type
+      gz.write([value].pack('L')) # Integer value
+    elsif value.is_a?(String)
+      value_bytes = value.bytes
+      gz.write([0x05].pack('C')) # String type
+      gz.write([value_bytes.size].pack('L')) # Length of value
+      gz.write(value_bytes.pack('C*')) # String value
+    end
+  end
+
+  # Write end of object marker
+  gz.write([0x00].pack('C'))
+end
+
+puts "Dictionary encoded to FLEXON successfully."
+</pre>
+
+
+<h3>2. Decoding FLEXON to Data Structures</h3>
+<p><strong>Description:</strong> Learn how to decode FLEXON binary files back to usable data structures like dictionaries, arrays, or other native formats. Examples include implementations with and without JSON support.</p>
+
+<h4>Python: Decoding FLEXON</h4>
+<pre>
+import gzip
+import struct
+
+# Decode FLEXON binary file
+with gzip.open("output.flexon", "rb") as flexon_file:
+    marker = flexon_file.read(1)
+    if marker == b'\x0A':  # Start of object
+        decoded_data = {}
+        while True:
+            marker = flexon_file.read(1)
+            if marker == b'\x00':  # End of object
+                break
+
+            # Read key
+            if marker == b'\x05':  # String
+                key_length = struct.unpack('I', flexon_file.read(4))[0]
+                key = flexon_file.read(key_length).decode("utf-8")
+
+                # Read value
+                value_marker = flexon_file.read(1)
+                if value_marker == b'\x03':  # Integer
+                    value = struct.unpack('I', flexon_file.read(4))[0]
+                elif value_marker == b'\x05':  # String
+                    value_length = struct.unpack('I', flexon_file.read(4))[0]
+                    value = flexon_file.read(value_length).decode("utf-8")
+                decoded_data[key] = value
+
+print("Decoded Data:", decoded_data)
+</pre>
+
+<h4>Node.js: Decoding FLEXON</h4>
+<pre>
+const fs = require('fs');
+const zlib = require('zlib');
+
+// Decode FLEXON binary file
+const compressedData = fs.readFileSync('output.flexon');
+const flexonData = zlib.gunzipSync(compressedData);
+
+let offset = 0;
+if (flexonData[offset++] === 0x0A) {  // Start of object marker
+    const decodedData = {};
+
+    while (offset < flexonData.length) {
+        const marker = flexonData[offset++];
+        if (marker === 0x00) break;  // End of object marker
+
+        if (marker === 0x05) {  // Key as string
+            const keyLength = flexonData.readUInt32LE(offset);
+            offset += 4;
+            const key = flexonData.slice(offset, offset + keyLength).toString('utf-8');
+            offset += keyLength;
+
+            const valueMarker = flexonData[offset++];
+            if (valueMarker === 0x03) {  // Integer value
+                const value = flexonData.readUInt32LE(offset);
+                offset += 4;
+                decodedData[key] = value;
+            } else if (valueMarker === 0x05) {  // String value
+                const valueLength = flexonData.readUInt32LE(offset);
+                offset += 4;
+                const value = flexonData.slice(offset, offset + valueLength).toString('utf-8');
+                offset += valueLength;
+                decodedData[key] = value;
+            }
+        }
+    }
+    console.log("Decoded Data:", decodedData);
+}
+</pre>
+
+<h4>PHP: Decoding FLEXON</h4>
+<pre>
+<?php
+$flexonFile = gzopen("output.flexon", "rb");
+
+if (ord(gzread($flexonFile, 1)) === 0x0A) { // Start of object
+    $decodedData = [];
+    while (!gzeof($flexonFile)) {
+        $marker = ord(gzread($flexonFile, 1));
+        if ($marker === 0x00) break; // End of object
+
+        if ($marker === 0x05) { // Key as string
+            $keyLength = unpack("L", gzread($flexonFile, 4))[1];
+            $key = gzread($flexonFile, $keyLength);
+
+            $valueMarker = ord(gzread($flexonFile, 1));
+            if ($valueMarker === 0x03) { // Integer value
+                $value = unpack("L", gzread($flexonFile, 4))[1];
+            } elseif ($valueMarker === 0x05) { // String value
+                $valueLength = unpack("L", gzread($flexonFile, 4))[1];
+                $value = gzread($flexonFile, $valueLength);
+            }
+            $decodedData[$key] = $value;
+        }
+    }
+    print_r($decodedData);
+}
+gzclose($flexonFile);
+?>
+</pre>
+
+<h4>Ruby: Decoding FLEXON</h4>
+<pre>
+require 'zlib'
+
+# Decode FLEXON binary file
+decoded_data = {}
+Zlib::GzipReader.open("output.flexon") do |gz|
+  if gz.read(1).unpack('C').first == 0x0A  # Start of object
+    loop do
+      marker = gz.read(1).unpack('C').first
+      break if marker == 0x00  # End of object
+
+      if marker == 0x05  # Key as string
+        key_length = gz.read(4).unpack('L').first
+        key = gz.read(key_length)
+
+        value_marker = gz.read(1).unpack('C').first
+        if value_marker == 0x03  # Integer value
+          value = gz.read(4).unpack('L').first
+        elsif value_marker == 0x05  # String value
+          value_length = gz.read(4).unpack('L').first
+          value = gz.read(value_length)
+        end
+        decoded_data[key] = value
+      end
+    end
+  end
+end
+
+puts "Decoded Data: #{decoded_data}"
+</pre>
+
+
+### Inspecting FLEXON Files
+
+<h3>3. Inspecting FLEXON Files</h3>
+<p><strong>Description:</strong> Learn how to inspect FLEXON binary files to debug or verify data integrity.</p>
+
+<h4>Python: Inspecting FLEXON</h4>
+<pre>
+import gzip
+
+with gzip.open("output.flexon", "rb") as flexon_file:
+    data = flexon_file.read()
+    print("FLEXON Content:", data)
+</pre>
+
+<h4>Node.js: Inspecting FLEXON</h4>
+<pre>
+const fs = require('fs');
+const zlib = require('zlib');
+
+const data = zlib.gunzipSync(fs.readFileSync("output.flexon"));
+console.log("FLEXON Content:", data.toString('hex'));
+</pre>
+
+<h4>PHP: Inspecting FLEXON</h4>
+<pre>
+<?php
+$data = gzfile("output.flexon");
+echo "FLEXON Content:\n";
+print_r($data);
+?>
+</pre>
+
+<h4>Ruby: Inspecting FLEXON</h4>
+<pre>
+require 'zlib'
+
+Zlib::GzipReader.open("output.flexon") do |gz|
+  data = gz.read
+  puts "FLEXON Content: #{data.unpack('H*').first}"
+end
+</pre>
+<h3>4. Validating FLEXON Files</h3>
+<p><strong>Description:</strong> Learn how to validate FLEXON files against schemas.</p>
+
+<h4>Python: Validating FLEXON</h4>
+<pre>
+import json
+
+# Sample schema
+schema = {"type": "object", "properties": {"ID": {"type": "integer"}, "Name": {"type": "string"}}}
+
+# FLEXON data
+data = {"ID": 1, "Name": "Alice"}
+
+# Validate FLEXON against schema
+is_valid = all(key in schema["properties"] for key in data.keys())
+print("Validation:", "Passed" if is_valid else "Failed")
+</pre>
+
+<h4>Node.js: Validating FLEXON</h4>
+<pre>
+const schema = { type: "object", properties: { ID: { type: "integer" }, Name: { type: "string" } } };
+const data = { ID: 1, Name: "Alice" };
+
+const isValid = Object.keys(data).every((key) => schema.properties.hasOwnProperty(key));
+console.log("Validation:", isValid ? "Passed" : "Failed");
+</pre>
+
+<h4>PHP: Validating FLEXON</h4>
+<pre>
+<?php
+$schema = ["type" => "object", "properties" => ["ID" => ["type" => "integer"], "Name" => ["type" => "string"]]];
+$data = ["ID" => 1, "Name" => "Alice"];
+
+$isValid = !array_diff_key($schema["properties"], $data);
+echo "Validation: " . ($isValid ? "Passed" : "Failed");
+?>
+</pre>
+
+<h4>Ruby: Validating FLEXON</h4>
+<pre>
+schema = { type: "object", properties: { ID: { type: "integer" }, Name: { type: "string" } } }
+data = { ID: 1, Name: "Alice" }
+
+is_valid = (data.keys - schema[:properties].keys).empty?
+puts "Validation: #{is_valid ? 'Passed' : 'Failed'}"
+</pre>
+
+<h4>Python: Validating FLEXON with JSON</h4>
+<pre>
+import json
+from jsonschema import validate, ValidationError
+
+# Define the schema
+schema = {
+    "type": "object",
+    "properties": {
+        "ID": {"type": "integer"},
+        "Name": {"type": "string"}
+    },
+    "required": ["ID", "Name"]
+}
+
+# FLEXON (decoded) data
+data = {"ID": 1, "Name": "Alice"}
+
+# Validate the data
+try:
+    validate(instance=data, schema=schema)
+    print("Validation: Passed")
+except ValidationError as e:
+    print("Validation: Failed")
+    print(e.message)
+</pre>
+
+<h4>Node.js: Validating FLEXON with JSON</h4>
+<pre>
+const Ajv = require("ajv");
+const ajv = new Ajv();
+
+// Define the schema
+const schema = {
+    type: "object",
+    properties: {
+        ID: { type: "integer" },
+        Name: { type: "string" }
+    },
+    required: ["ID", "Name"]
+};
+
+// FLEXON (decoded) data
+const data = { ID: 1, Name: "Alice" };
+
+// Validate the data
+const validate = ajv.compile(schema);
+const isValid = validate(data);
+
+if (isValid) {
+    console.log("Validation: Passed");
+} else {
+    console.log("Validation: Failed");
+    console.log(validate.errors);
+}
+</pre>
+
+<h4>PHP: Validating FLEXON with JSON</h4>
+<pre>
+<?php
+require 'vendor/autoload.php'; // Assuming JSON Schema validation library is installed
+
+use JsonSchema\Validator;
+
+$validator = new Validator();
+
+// Define the schema
+$schema = json_decode(json_encode([
+    "type" => "object",
+    "properties" => [
+        "ID" => ["type" => "integer"],
+        "Name" => ["type" => "string"]
+    ],
+    "required" => ["ID", "Name"]
+]));
+
+// FLEXON (decoded) data
+$data = json_decode(json_encode(["ID" => 1, "Name" => "Alice"]));
+
+// Validate the data
+$validator->validate($data, $schema);
+
+if ($validator->isValid()) {
+    echo "Validation: Passed\n";
+} else {
+    echo "Validation: Failed\n";
+    foreach ($validator->getErrors() as $error) {
+        echo sprintf("[%s] %s\n", $error['property'], $error['message']);
+    }
+}
+?>
+</pre>
+
+<h4>Ruby: Validating FLEXON with JSON</h4>
+<pre>
+require 'json-schema'
+
+# Define the schema
+schema = {
+    "type" => "object",
+    "properties" => {
+        "ID" => { "type" => "integer" },
+        "Name" => { "type" => "string" }
+    },
+    "required" => ["ID", "Name"]
+}
+
+# FLEXON (decoded) data
+data = { "ID" => 1, "Name" => "Alice" }
+
+# Validate the data
+begin
+    JSON::Validator.validate!(schema, data)
+    puts "Validation: Passed"
+rescue JSON::Schema::ValidationError => e
+    puts "Validation: Failed"
+    puts e.message
+end
+</pre>
+
+<h4>Java: Validating FLEXON with JSON</h4>
+<pre>
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.ValidationMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import java.io.File;
+import java.util.Set;
+
+public class ValidateFlexon {
+    public static void main(String[] args) {
+        try {
+            // Load schema
+            JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance();
+            JsonSchema schema = schemaFactory.getSchema(new File("schema.json"));
+
+            // FLEXON (decoded) data
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode data = mapper.readTree(new File("decoded.json"));
+
+            // Validate data
+            Set<ValidationMessage> errors = schema.validate(data);
+            if (errors.isEmpty()) {
+                System.out.println("Validation: Passed");
+            } else {
+                System.out.println("Validation: Failed");
+                errors.forEach(System.out::println);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+</pre>
+
+<h4> Python Example: JSON to FLEXON </h4>
+<pre>
+import gzip
+import json
+
+# Read JSON from a file
+with open("input.json", "r") as json_file:
+    json_data = json_file.read()
+
+# Convert JSON to FLEXON binary and save to file
+with gzip.open("output.flexon", "wb") as flexon_file:
+    flexon_file.write(json_data.encode("utf-8"))
+
+print("JSON encoded to FLEXON successfully.")
+</pre>
+
+
+<h4> VB.NET Example: JSON to FLEXON</h4>
+<pre>
+Imports System.IO
+Imports System.IO.Compression
+
+Module Program
+    Sub Main()
+        ' Read JSON input
+        Dim jsonInput As String = File.ReadAllText("input.json")
+
+        ' Write to FLEXON binary
+        Using flexonFile As FileStream = New FileStream("output.flexon", FileMode.Create)
+            Using compressedStream As GZipStream = New GZipStream(flexonFile, CompressionMode.Compress)
+                Using writer As New StreamWriter(compressedStream)
+                    writer.Write(jsonInput)
+                End Using
+            End Using
+        End Using
+
+        Console.WriteLine("JSON encoded to FLEXON successfully.")
+    End Sub
+End Module
+</pre>
+
+<h4> Java Example: JSON to FLEXON</h4>
+<pre>
+import java.io.*;
+import java.util.zip.GZIPOutputStream;
+
+public class JsonToFlexon {
+    public static void main(String[] args) {
+        try {
+            // Read JSON input
+            BufferedReader jsonReader = new BufferedReader(new FileReader("input.json"));
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = jsonReader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            jsonReader.close();
+
+            // Write FLEXON binary file
+            FileOutputStream fileOut = new FileOutputStream("output.flexon");
+            GZIPOutputStream gzipOut = new GZIPOutputStream(fileOut);
+            gzipOut.write(jsonContent.toString().getBytes("UTF-8"));
+            gzipOut.close();
+
+            System.out.println("JSON encoded to FLEXON successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+</pre>
+
+
+
+<h4> Node.js Example: JSON to FLEXON</h4>
+<pre>
+const fs = require('fs');
+const zlib = require('zlib');
+
+// Read JSON file
+const jsonInput = fs.readFileSync('input.json', 'utf-8');
+
+// Write FLEXON file
+fs.writeFileSync('output.flexon', zlib.gzipSync(Buffer.from(jsonInput)));
+
+console.log('JSON encoded to FLEXON successfully.');
+</pre>
+
+
+
+<h4> PHP Example: JSON to FLEXON</h4>
+<pre>
+
+// Read JSON file
+$jsonInput = file_get_contents("input.json");
+
+// Write FLEXON binary file
+$flexonFile = gzopen("output.flexon", "wb");
+gzwrite($flexonFile, $jsonInput);
+gzclose($flexonFile);
+
+echo "JSON encoded to FLEXON successfully.";
+</pre>
+
+<h4> Ruby Example: JSON to FLEXON</h4>
+<pre>
+require 'zlib'
+
+# Read JSON file
+json_input = File.read("input.json")
+
+# Write FLEXON binary file
+Zlib::GzipWriter.open("output.flexon") do |gz|
+  gz.write(json_input)
+end
+
+puts "JSON encoded to FLEXON successfully."
+</pre>
+
+
+
+<h4>PHP: Decoding FLEXON</h4>
+<pre>
+
+$decodedData = [];
+
+// Open FLEXON file
+$flexonFile = gzopen("output.flexon", "rb");
+if (fread($flexonFile, 1) === chr(0x0A)) { // Start of object marker
+    while (true) {
+        $marker = fread($flexonFile, 1);
+        if ($marker === chr(0x00)) break; // End of object marker
+
+        if ($marker === chr(0x05)) { // Key as string
+            $keyLength = unpack("L", fread($flexonFile, 4))[1];
+            $key = fread($flexonFile, $keyLength);
+
+            $valueMarker = fread($flexonFile, 1);
+            if ($valueMarker === chr(0x03)) { // Integer value
+                $value = unpack("L", fread($flexonFile, 4))[1];
+            } elseif ($valueMarker === chr(0x05)) { // String value
+                $valueLength = unpack("L", fread($flexonFile, 4))[1];
+                $value = fread($flexonFile, $valueLength);
+            }
+            $decodedData[$key] = $value;
+        }
+    }
+}
+gzclose($flexonFile);
+
+print_r($decodedData);
+
+</pre>
+
+<h4>PHP: Inspecting FLEXON</h4>
+<pre>
+
+$flexonFile = gzopen("output.flexon", "rb");
+$content = gzread($flexonFile, 1024);
+gzclose($flexonFile);
+
+echo "FLEXON Content: " . bin2hex($content);
+
+</pre>
+
+<h4>Ruby: Validating FLEXON Without JSON</h4>
+<pre>
+require 'zlib'
+
+# Define the schema as a hash
+schema = { "ID" => Integer, "Name" => String }
+
+# Decode FLEXON binary file
+data = {}
+Zlib::GzipReader.open("output.flexon") do |gz|
+  if gz.read(1).unpack('C').first == 0x0A  # Start of object marker
+    loop do
+      marker = gz.read(1).unpack('C').first
+      break if marker == 0x00  # End of object marker
+
+      if marker == 0x05  # Key as string
+        key_length = gz.read(4).unpack('L').first
+        key = gz.read(key_length)
+
+        value_marker = gz.read(1).unpack('C').first
+        if value_marker == 0x03  # Integer value
+          value = gz.read(4).unpack('L').first
+        elsif value_marker == 0x05  # String value
+          value_length = gz.read(4).unpack('L').first
+          value = gz.read(value_length)
+        end
+        data[key] = value
+      end
+    end
+  end
+end
+
+# Validate data against schema
+is_valid = data.all? { |key, value| schema[key].is_a?(Class) && value.is_a?(schema[key]) }
+puts "Validation: #{is_valid ? 'Passed' : 'Failed'}"
+</pre>
+
+
+
+### Final Notes:<br><br>
+
+- These examples showcase decoding, inspecting, and validating FLEXON files with and without JSON integration.<br>
+- **Inspecting FLEXON Files** examples (e.g., hex dumps or readable output) can also be extended as needed for debugging purposes.<br>
+- Each language's example includes both the core FLEXON capabilities and JSON-related extensions where applicable.<br>
+
+    </div>
+</main>
+
+<footer>
+    <nav class="footer-menu">
+        <a href="index.html" title="Home - Learn about FLEXON CLI">Home</a> |
+        <a href="examples.html" title="Examples - FLEXON CLI Usage Examples">Examples</a> |
+        <a href="tutorials.html" title="Tutorials - FLEXON CLI Tutorials">Tutorials</a> |
+        <a href="guides.html" title="Guides - FLEXON CLI Comprehensive Guides">Guides</a> |
+        <a href="marketing.html" title="Why FLEXON?">Marketing</a> |
+        <a href="fun.html" title="Flexon vs JSON - The Fun Chase">Flexon vs JSON</a> |
+        <a href="terms-of-use.html" title="Terms of Use - FLEXON CLI">Terms of Use</a> |
+        <a href="contact.html" title="Contact FLEXON CLI Support">Contact</a> |
+        <a href="https://github.com/LoSkroefie/flexon-cli" title="View FLEXON CLI on GitHub" target="_blank">GitHub</a>
+    </nav>
+    <p>&copy; 2025 JVR Software. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

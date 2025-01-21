@@ -1,0 +1,43 @@
+{
+  "dataset": [
+    {
+      "input": "What is quantum computing?",
+      "output": "Quantum computing is a type of computing that uses quantum mechanics to solve complex problems faster than traditional computers.",
+      "metadata": {
+        "timestamp": "2025-01-21T00:00:00Z",
+        "source": "expert_reviewed",
+        "tags": ["quantum", "computing", "basics"],
+        "quality": 0.95
+      },
+      "embeddings": {
+        "input": [0.1, 0.2, 0.3],
+        "output": [0.4, 0.5, 0.6]
+      }
+    },
+    {
+      "input": "How does a quantum computer work?",
+      "output": "Quantum computers use quantum bits or qubits, which can exist in multiple states simultaneously, unlike classical bits that are either 0 or 1.",
+      "metadata": {
+        "timestamp": "2025-01-21T00:00:00Z",
+        "source": "expert_reviewed",
+        "tags": ["quantum", "computing", "qubits"],
+        "quality": 0.92
+      },
+      "embeddings": {
+        "input": [0.7, 0.8, 0.9],
+        "output": [0.10, 0.11, 0.12]
+      }
+    }
+  ],
+  "metadata": {
+    "model": "quantum-tutor-v1",
+    "version": "1.0.0",
+    "created": "2025-01-21T00:00:00Z",
+    "description": "Quantum computing educational dataset",
+    "parameters": {
+      "embeddingModel": "sentence-transformer-v1",
+      "tokenizer": "gpt2",
+      "maxTokens": 2048
+    }
+  }
+}

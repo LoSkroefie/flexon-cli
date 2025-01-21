@@ -1,13 +1,320 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Linq;
+using System.Drawing;
+using System.Diagnostics;
+
+public enum EncryptionAlgorithm
+{
+    AES256,
+    ChaCha20,
+    TripleDES
+}
+
+public class EncryptionOptions
+{
+    public EncryptionAlgorithm Algorithm { get; set; }
+    public string Key { get; set; }
+
+    public EncryptionOptions(string key, EncryptionAlgorithm algorithm = EncryptionAlgorithm.AES256)
+    {
+        Key = key;
+        Algorithm = algorithm;
+    }
+
+    public static EncryptionOptions Parse(string[] args, int startIndex)
+    {
+        if (args.Length <= startIndex) return null;
+        
+        var key = args[startIndex];
+        var algorithm = EncryptionAlgorithm.AES256;
+
+        if (args.Length > startIndex + 1)
+        {
+            if (Enum.TryParse(args[startIndex + 1], true, out EncryptionAlgorithm parsedAlgorithm))
+            {
+                algorithm = parsedAlgorithm;
+            }
+        }
+
+        return new EncryptionOptions(key, algorithm);
+    }
+}
+
+public class SerializationOptions
+{
+    public List<string> InputFiles { get; set; } = new();
+    public string OutputFile { get; set; }
+    public string SchemaFile { get; set; }
+    public EncryptionOptions Encryption { get; set; }
+    public bool Benchmark { get; set; }
+
+    public static SerializationOptions ParseFromArgs(string[] args)
+    {
+        var options = new SerializationOptions();
+        for (int i = 1; i < args.Length; i++)
+        {
+            switch (args[i].ToLower())
+            {
+                case "-i":
+                case "--input":
+                    if (++i < args.Length) options.InputFiles.Add(args[i]);
+                    break;
+                case "-o":
+                case "--output":
+                    if (++i < args.Length) options.OutputFile = args[i];
+                    break;
+                case "-s":
+                case "--schema":
+                    if (++i < args.Length) options.SchemaFile = args[i];
+                    break;
+                case "-e":
+                case "--encrypt":
+                    if (++i < args.Length)
+                    {
+                        string key = args[i];
+                        EncryptionAlgorithm algo = EncryptionAlgorithm.AES256;
+                        if (i + 1 < args.Length && Enum.TryParse(args[i + 1], true, out EncryptionAlgorithm parsedAlgo))
+                        {
+                            algo = parsedAlgo;
+                            i++;
+                        }
+                        options.Encryption = new EncryptionOptions(key, algo);
+                    }
+                    break;
+                case "-b":
+                case "--benchmark":
+                    options.Benchmark = true;
+                    break;
+            }
+        }
+        return options;
+    }
+}
 
 public class Program
 {
     public static void Main(string[] args)
+    {
+        Console.WriteLine("=====================================");
+        Console.WriteLine(" FLEXON CLI Utility v1.1.0");
+        Console.WriteLine(" Developed by JVR Software");
+        Console.WriteLine("=====================================\n");
+
+        if (args.Length < 1)
+        {
+            DisplayUsage();
+            return;
+        }
+
+        try
+        {
+            var command = args[0].ToLower();
+            switch (command)
+            {
+                case "help":
+                case "--help":
+                case "-h":
+                    if (args.Length > 1)
+                    {
+                        DisplayCommandHelp(args[1].ToLower());
+                    }
+                    else
+                    {
+                        DisplayUsage();
+                    }
+                    break;
+
+                case "serialize":
+                    var serializeOptions = SerializationOptions.ParseFromArgs(args);
+                    if (serializeOptions.InputFiles.Count == 0 || string.IsNullOrEmpty(serializeOptions.OutputFile))
+                    {
+                        throw new ArgumentException("Input and output files are required for serialization.");
+                    }
+                    SerializeData(serializeOptions);
+                    break;
+
+                case "deserialize":
+                    var deserializeOptions = SerializationOptions.ParseFromArgs(args);
+                    if (string.IsNullOrEmpty(deserializeOptions.InputFiles.FirstOrDefault()) || 
+                        string.IsNullOrEmpty(deserializeOptions.OutputFile))
+                    {
+                        throw new ArgumentException("Input and output files are required for deserialization.");
+                    }
+                    DeserializeData(deserializeOptions);
+                    break;
+
+                case "benchmark":
+                    var benchmarkOptions = SerializationOptions.ParseFromArgs(args);
+                    if (string.IsNullOrEmpty(benchmarkOptions.InputFiles.FirstOrDefault()))
+                    {
+                        throw new ArgumentException("Input file is required for benchmark.");
+                    }
+                    RunBenchmark(benchmarkOptions);
+                    break;
+
+                // Keep existing commands for backward compatibility
+                case "encode":
+                case "decode":
+                case "inspect":
+                case "validate":
+                case "encrypt":
+                case "decrypt":
+                    HandleLegacyCommands(command, args);
+                    break;
+
+                default:
+                    throw new ArgumentException("Invalid command. Use 'serialize', 'deserialize', or 'benchmark'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private static void SerializeData(SerializationOptions options)
+    {
+        var stopwatch = options.Benchmark ? Stopwatch.StartNew() : null;
+        var data = new Dictionary<string, object>();
+
+        foreach (var inputFile in options.InputFiles)
+        {
+            var fileInfo = new FileInfo(inputFile);
+            var fileExtension = fileInfo.Extension.ToLower();
+
+            object fileData;
+            switch (fileExtension)
+            {
+                case ".json":
+                    var jsonContent = File.ReadAllText(inputFile);
+                    fileData = JsonSerializer.Deserialize<object>(jsonContent);
+                    break;
+
+                case ".png":
+                case ".jpg":
+                case ".jpeg":
+                case ".bmp":
+                case ".gif":
+                    fileData = File.ReadAllBytes(inputFile);
+                    break;
+
+                default:
+                    // For unknown types, store as binary
+                    fileData = File.ReadAllBytes(inputFile);
+                    break;
+            }
+
+            data[fileInfo.Name] = fileData;
+        }
+
+        // Validate against schema if provided
+        if (!string.IsNullOrEmpty(options.SchemaFile))
+        {
+            var schemaJson = File.ReadAllText(options.SchemaFile);
+            var schema = JsonSerializer.Deserialize<JsonElement>(schemaJson);
+            var errors = new List<string>();
+            
+            if (!FlexonBinary.Validate(data, schema, errors: errors))
+            {
+                throw new Exception($"Schema validation failed:\n{string.Join("\n", errors)}");
+            }
+        }
+
+        using var outputStream = new FileStream(options.OutputFile, FileMode.Create);
+        using var targetStream = options.Encryption != null ? 
+            GetEncryptionStream(outputStream, options.Encryption) : outputStream;
+        using var compressedStream = new GZipStream(targetStream, CompressionMode.Compress);
+        using var writer = new BinaryWriter(compressedStream);
+        
+        FlexonBinary.Encode(data, writer);
+
+        if (options.Benchmark && stopwatch != null)
+        {
+            stopwatch.Stop();
+            Console.WriteLine($"Serialization completed in {stopwatch.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Input size: {options.InputFiles.Sum(f => new FileInfo(f).Length)} bytes");
+            Console.WriteLine($"Output size: {new FileInfo(options.OutputFile).Length} bytes");
+        }
+    }
+
+    private static void DeserializeData(SerializationOptions options)
+    {
+        var stopwatch = options.Benchmark ? Stopwatch.StartNew() : null;
+
+        using var inputStream = new FileStream(options.InputFiles[0], FileMode.Open);
+        using var sourceStream = options.Encryption != null ? 
+            GetDecryptionStream(inputStream, options.Encryption) : inputStream;
+        using var compressedStream = new GZipStream(sourceStream, CompressionMode.Decompress);
+        using var reader = new BinaryReader(compressedStream);
+        
+        var data = FlexonBinary.Decode(reader);
+
+        // Handle the deserialized data
+        if (data is Dictionary<string, object> dict)
+        {
+            var outputDir = Path.GetDirectoryName(options.OutputFile);
+            foreach (var kvp in dict)
+            {
+                var outputPath = Path.Combine(outputDir, kvp.Key);
+                if (kvp.Value is byte[] bytes)
+                {
+                    File.WriteAllBytes(outputPath, bytes);
+                }
+                else
+                {
+                    var json = JsonSerializer.Serialize(kvp.Value, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(outputPath, json);
+                }
+            }
+        }
+        else
+        {
+            var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(options.OutputFile, json);
+        }
+
+        if (options.Benchmark && stopwatch != null)
+        {
+            stopwatch.Stop();
+            Console.WriteLine($"Deserialization completed in {stopwatch.ElapsedMilliseconds}ms");
+        }
+    }
+
+    private static void RunBenchmark(SerializationOptions options)
+    {
+        Console.WriteLine("Running Flexon Benchmark...");
+        Console.WriteLine("1. Testing Serialization Performance...");
+        
+        var serializeWatch = Stopwatch.StartNew();
+        SerializeData(options);
+        serializeWatch.Stop();
+
+        Console.WriteLine("2. Testing Deserialization Performance...");
+        var deserializeWatch = Stopwatch.StartNew();
+        DeserializeData(options);
+        deserializeWatch.Stop();
+
+        // Calculate and display metrics
+        var inputSize = options.InputFiles.Sum(f => new FileInfo(f).Length);
+        var outputSize = new FileInfo(options.OutputFile).Length;
+        var compressionRatio = (1 - ((double)outputSize / inputSize)) * 100;
+
+        Console.WriteLine("\nBenchmark Results:");
+        Console.WriteLine($"Serialization Time: {serializeWatch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"Deserialization Time: {deserializeWatch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"Input Size: {inputSize:N0} bytes");
+        Console.WriteLine($"Output Size: {outputSize:N0} bytes");
+        Console.WriteLine($"Compression Ratio: {compressionRatio:F2}%");
+        Console.WriteLine($"Throughput: {(inputSize / (1024.0 * 1024.0)) / (serializeWatch.ElapsedMilliseconds / 1000.0):F2} MB/s");
+    }
+
+    private static void HandleLegacyCommands(string command, string[] args)
     {
         // Display CLI header with updated version
         Console.WriteLine("=====================================");
@@ -21,7 +328,6 @@ public class Program
             return;
         }
 
-        var command = args[0].ToLower();
         var inputPath = args[1];
         var outputPath = args.Length > 2 ? args[2] : null;
 
@@ -36,13 +342,15 @@ public class Program
             {
                 case "encode":
                     if (outputPath == null) throw new ArgumentException("Output path is required for encoding.");
-                    EncodeJsonToFlexon(inputPath, outputPath);
+                    var encodeOptions = EncryptionOptions.Parse(args, 3);
+                    EncodeJsonToFlexon(inputPath, outputPath, encodeOptions);
                     Console.WriteLine($"Successfully encoded {inputPath} to {outputPath}");
                     break;
 
                 case "decode":
                     if (outputPath == null) throw new ArgumentException("Output path is required for decoding.");
-                    DecodeFlexonToJson(inputPath, outputPath);
+                    var decodeOptions = EncryptionOptions.Parse(args, 3);
+                    DecodeFlexonToJson(inputPath, outputPath, decodeOptions);
                     Console.WriteLine($"Successfully decoded {inputPath} to {outputPath}");
                     break;
 
@@ -57,8 +365,24 @@ public class Program
                     Console.WriteLine($"Validation completed for {inputPath} against schema {outputPath}");
                     break;
 
+                case "encrypt":
+                    if (outputPath == null) throw new ArgumentException("Output path is required for encryption.");
+                    if (args.Length <= 3) throw new ArgumentException("Encryption key is required.");
+                    var encryptOptions = EncryptionOptions.Parse(args, 3);
+                    EncryptFlexon(inputPath, outputPath, encryptOptions);
+                    Console.WriteLine($"Successfully encrypted {inputPath} to {outputPath}");
+                    break;
+
+                case "decrypt":
+                    if (outputPath == null) throw new ArgumentException("Output path is required for decryption.");
+                    if (args.Length <= 3) throw new ArgumentException("Encryption key is required.");
+                    var decryptOptions = EncryptionOptions.Parse(args, 3);
+                    DecryptFlexon(inputPath, outputPath, decryptOptions);
+                    Console.WriteLine($"Successfully decrypted {inputPath} to {outputPath}");
+                    break;
+
                 default:
-                    throw new ArgumentException("Invalid command. Use 'encode', 'decode', 'inspect', or 'validate'.");
+                    throw new ArgumentException("Invalid command. Use 'encode', 'decode', 'inspect', 'validate', 'encrypt', or 'decrypt'.");
             }
         }
         catch (FileNotFoundException ex)
@@ -99,21 +423,25 @@ public class Program
         Console.WriteLine("Validation passed: FLEXON data matches the schema.");
     }
 
-    static void EncodeJsonToFlexon(string inputPath, string outputPath)
+    static void EncodeJsonToFlexon(string inputPath, string outputPath, EncryptionOptions options = null)
     {
         var json = File.ReadAllText(inputPath);
         var data = JsonSerializer.Deserialize<object>(json);
 
         using var outputStream = new FileStream(outputPath, FileMode.Create);
-        using var compressedStream = new GZipStream(outputStream, CompressionMode.Compress);
+        using var targetStream = options != null ? 
+            GetEncryptionStream(outputStream, options) : outputStream;
+        using var compressedStream = new GZipStream(targetStream, CompressionMode.Compress);
         using var writer = new BinaryWriter(compressedStream);
         FlexonBinary.Encode(data, writer);
     }
 
-    static void DecodeFlexonToJson(string inputPath, string outputPath)
+    static void DecodeFlexonToJson(string inputPath, string outputPath, EncryptionOptions options = null)
     {
         using var inputStream = new FileStream(inputPath, FileMode.Open);
-        using var compressedStream = new GZipStream(inputStream, CompressionMode.Decompress);
+        using var sourceStream = options != null ? 
+            GetDecryptionStream(inputStream, options) : inputStream;
+        using var compressedStream = new GZipStream(sourceStream, CompressionMode.Decompress);
         using var reader = new BinaryReader(compressedStream);
         var data = FlexonBinary.Decode(reader);
 
@@ -138,13 +466,280 @@ public class Program
         }
     }
 
+    static void EncryptFlexon(string inputPath, string outputPath, EncryptionOptions options)
+    {
+        using var inputStream = new FileStream(inputPath, FileMode.Open);
+        using var outputStream = new FileStream(outputPath, FileMode.Create);
+        using var cryptoStream = GetEncryptionStream(outputStream, options);
+        inputStream.CopyTo(cryptoStream);
+    }
+
+    static void DecryptFlexon(string inputPath, string outputPath, EncryptionOptions options)
+    {
+        using var inputStream = new FileStream(inputPath, FileMode.Open);
+        using var outputStream = new FileStream(outputPath, FileMode.Create);
+        using var cryptoStream = GetDecryptionStream(inputStream, options);
+        cryptoStream.CopyTo(outputStream);
+    }
+
+    private static Stream GetEncryptionStream(Stream outputStream, EncryptionOptions options)
+    {
+        // Write algorithm identifier
+        outputStream.WriteByte((byte)options.Algorithm);
+
+        switch (options.Algorithm)
+        {
+            case EncryptionAlgorithm.AES256:
+                return GetAesEncryptionStream(outputStream, options.Key);
+            case EncryptionAlgorithm.ChaCha20:
+                return GetChaCha20EncryptionStream(outputStream, options.Key);
+            case EncryptionAlgorithm.TripleDES:
+                return GetTripleDesEncryptionStream(outputStream, options.Key);
+            default:
+                throw new ArgumentException($"Unsupported encryption algorithm: {options.Algorithm}");
+        }
+    }
+
+    private static Stream GetDecryptionStream(Stream inputStream, EncryptionOptions options)
+    {
+        // Read algorithm identifier
+        var algorithm = (EncryptionAlgorithm)inputStream.ReadByte();
+        
+        // Override the provided algorithm with the one from the file
+        options.Algorithm = algorithm;
+
+        switch (algorithm)
+        {
+            case EncryptionAlgorithm.AES256:
+                return GetAesDecryptionStream(inputStream, options.Key);
+            case EncryptionAlgorithm.ChaCha20:
+                return GetChaCha20DecryptionStream(inputStream, options.Key);
+            case EncryptionAlgorithm.TripleDES:
+                return GetTripleDesDecryptionStream(inputStream, options.Key);
+            default:
+                throw new ArgumentException($"Unsupported encryption algorithm: {algorithm}");
+        }
+    }
+
+    private static Stream GetAesEncryptionStream(Stream outputStream, string key)
+    {
+        using var aes = Aes.Create();
+        var keyBytes = DeriveKeyAndIV(key, out byte[] iv, 32);
+        aes.Key = keyBytes;
+        aes.IV = iv;
+
+        outputStream.Write(iv, 0, iv.Length);
+        var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+        return new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+    }
+
+    private static Stream GetAesDecryptionStream(Stream inputStream, string key)
+    {
+        using var aes = Aes.Create();
+        var iv = new byte[16];
+        inputStream.Read(iv, 0, iv.Length);
+        
+        var keyBytes = DeriveKeyAndIV(key, out _, 32);
+        aes.Key = keyBytes;
+        aes.IV = iv;
+
+        var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+        return new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+    }
+
+    private static Stream GetChaCha20EncryptionStream(Stream outputStream, string key)
+    {
+        var keyBytes = DeriveKeyAndIV(key, out byte[] nonce, 32);
+        outputStream.Write(nonce, 0, nonce.Length);
+        
+        var chacha20 = new ChaCha20Poly1305(keyBytes);
+        var encryptor = chacha20.CreateEncryptor(nonce, null);
+        return new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+    }
+
+    private static Stream GetChaCha20DecryptionStream(Stream inputStream, string key)
+    {
+        var nonce = new byte[16];
+        inputStream.Read(nonce, 0, nonce.Length);
+        
+        var keyBytes = DeriveKeyAndIV(key, out _, 32);
+        var chacha20 = new ChaCha20Poly1305(keyBytes);
+        var decryptor = chacha20.CreateDecryptor(nonce, null);
+        return new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+    }
+
+    private static Stream GetTripleDesEncryptionStream(Stream outputStream, string key)
+    {
+        using var des = TripleDES.Create();
+        var keyBytes = DeriveKeyAndIV(key, out byte[] iv, 24); // TripleDES uses 24-byte key
+        des.Key = keyBytes;
+        des.IV = iv;
+
+        outputStream.Write(iv, 0, iv.Length);
+        var encryptor = des.CreateEncryptor(des.Key, des.IV);
+        return new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+    }
+
+    private static Stream GetTripleDesDecryptionStream(Stream inputStream, string key)
+    {
+        using var des = TripleDES.Create();
+        var iv = new byte[8]; // TripleDES uses 8-byte IV
+        inputStream.Read(iv, 0, iv.Length);
+        
+        var keyBytes = DeriveKeyAndIV(key, out _, 24);
+        des.Key = keyBytes;
+        des.IV = iv;
+
+        var decryptor = des.CreateDecryptor(des.Key, des.IV);
+        return new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+    }
+
+    private static byte[] DeriveKeyAndIV(string password, out byte[] iv, int keySize)
+    {
+        using var deriveBytes = new Rfc2898DeriveBytes(password, 16, 10000, HashAlgorithmName.SHA256);
+        iv = deriveBytes.GetBytes(16);
+        return deriveBytes.GetBytes(keySize);
+    }
+
     private static void DisplayUsage()
     {
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  flexon-cli encode <input.json> <output.flexon>");
-        Console.WriteLine("  flexon-cli decode <input.flexon> <output.json>");
-        Console.WriteLine("  flexon-cli inspect <input.flexon> [output.json]");
-        Console.WriteLine("  flexon-cli validate <input.flexon> <schema.json>");
+        Console.WriteLine("Flexon CLI - The Next Generation Data Format");
+        Console.WriteLine("Version: 1.1.0");
+        Console.WriteLine("\nUsage: flexon-cli <command> [options]");
+        Console.WriteLine("\nCommands:");
+        Console.WriteLine("  serialize     Convert files to Flexon format");
+        Console.WriteLine("  deserialize   Convert Flexon files back to original format");
+        Console.WriteLine("  benchmark     Run performance tests");
+        Console.WriteLine("  help          Display help information");
+        Console.WriteLine("\nLegacy Commands:");
+        Console.WriteLine("  encode        Convert JSON to Flexon (legacy)");
+        Console.WriteLine("  decode        Convert Flexon to JSON (legacy)");
+        Console.WriteLine("  inspect       View Flexon file contents");
+        Console.WriteLine("  validate      Validate Flexon against schema");
+        Console.WriteLine("  encrypt       Encrypt existing Flexon file");
+        Console.WriteLine("  decrypt       Decrypt encrypted Flexon file");
+        Console.WriteLine("\nGet detailed help for a command:");
+        Console.WriteLine("  flexon-cli help <command>");
+        Console.WriteLine("\nExamples:");
+        Console.WriteLine("  flexon-cli help serialize");
+        Console.WriteLine("  flexon-cli serialize -i input.json -o output.flexon");
+        Console.WriteLine("  flexon-cli benchmark -i large_file.json -o benchmark.flexon");
+    }
+
+    private static void DisplayCommandHelp(string command)
+    {
+        switch (command)
+        {
+            case "serialize":
+                Console.WriteLine("Convert files to Flexon format");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli serialize [options]");
+                Console.WriteLine("\nOptions:");
+                Console.WriteLine("  -i, --input     Input file(s) to process. Can be specified multiple times");
+                Console.WriteLine("  -o, --output    Output Flexon file");
+                Console.WriteLine("  -s, --schema    JSON schema file for validation");
+                Console.WriteLine("  -e, --encrypt   Encryption key and optional algorithm");
+                Console.WriteLine("  -b, --benchmark Run performance benchmarks");
+                Console.WriteLine("\nSupported Input Formats:");
+                Console.WriteLine("  - JSON files (.json)");
+                Console.WriteLine("  - Images (.png, .jpg, .jpeg, .gif, .bmp)");
+                Console.WriteLine("  - Any binary file");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli serialize -i config.json -o config.flexon");
+                Console.WriteLine("  flexon-cli serialize -i data.json -i image.png -o package.flexon");
+                Console.WriteLine("  flexon-cli serialize -i input.json -o secure.flexon -e myKey ChaCha20");
+                break;
+
+            case "deserialize":
+                Console.WriteLine("Convert Flexon files back to original format");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli deserialize [options]");
+                Console.WriteLine("\nOptions:");
+                Console.WriteLine("  -i, --input     Input Flexon file");
+                Console.WriteLine("  -o, --output    Output directory or file");
+                Console.WriteLine("  -e, --encrypt   Encryption key (if file is encrypted)");
+                Console.WriteLine("  -b, --benchmark Run performance benchmarks");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli deserialize -i package.flexon -o ./output_dir");
+                Console.WriteLine("  flexon-cli deserialize -i encrypted.flexon -o data.json -e myKey");
+                break;
+
+            case "benchmark":
+                Console.WriteLine("Run performance tests");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli benchmark [options]");
+                Console.WriteLine("\nOptions:");
+                Console.WriteLine("  -i, --input     Input file to benchmark");
+                Console.WriteLine("  -o, --output    Output file for benchmark results");
+                Console.WriteLine("  -e, --encrypt   Include encryption in benchmark");
+                Console.WriteLine("  -b, --benchmark Show detailed metrics");
+                Console.WriteLine("\nMetrics Reported:");
+                Console.WriteLine("  - Serialization time");
+                Console.WriteLine("  - Deserialization time");
+                Console.WriteLine("  - Compression ratio");
+                Console.WriteLine("  - Memory usage");
+                Console.WriteLine("  - Throughput (MB/s)");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli benchmark -i large_dataset.json -o benchmark.flexon -b");
+                Console.WriteLine("  flexon-cli benchmark -i data.json -o secure.flexon -e myKey -b");
+                break;
+
+            case "encrypt":
+                Console.WriteLine("Encrypt an existing Flexon file");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli encrypt <input> <output> <key> [algorithm]");
+                Console.WriteLine("\nSupported Algorithms:");
+                Console.WriteLine("  - AES256 (default)");
+                Console.WriteLine("  - ChaCha20");
+                Console.WriteLine("  - TripleDES");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli encrypt data.flexon secure.flexon myKey");
+                Console.WriteLine("  flexon-cli encrypt data.flexon secure.flexon myKey ChaCha20");
+                break;
+
+            case "decrypt":
+                Console.WriteLine("Decrypt an encrypted Flexon file");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli decrypt <input> <output> <key>");
+                Console.WriteLine("\nNote: The encryption algorithm is automatically detected");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli decrypt secure.flexon data.flexon myKey");
+                break;
+
+            case "validate":
+                Console.WriteLine("Validate Flexon file against JSON schema");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli validate <input> <schema>");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli validate data.flexon schema.json");
+                break;
+
+            case "inspect":
+                Console.WriteLine("View contents of a Flexon file");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli inspect <input> [output]");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli inspect data.flexon");
+                Console.WriteLine("  flexon-cli inspect data.flexon output.json");
+                break;
+
+            case "encode":
+            case "decode":
+                Console.WriteLine("Legacy commands - Consider using serialize/deserialize instead");
+                Console.WriteLine("\nUsage:");
+                Console.WriteLine("  flexon-cli encode <input.json> <output.flexon> [key] [algorithm]");
+                Console.WriteLine("  flexon-cli decode <input.flexon> <output.json> [key]");
+                Console.WriteLine("\nExamples:");
+                Console.WriteLine("  flexon-cli encode input.json output.flexon");
+                Console.WriteLine("  flexon-cli encode input.json secure.flexon myKey ChaCha20");
+                Console.WriteLine("  flexon-cli decode input.flexon output.json");
+                break;
+
+            default:
+                Console.WriteLine($"Unknown command: {command}");
+                Console.WriteLine("Use 'flexon-cli help' to see all available commands");
+                break;
+        }
     }
 }
 
@@ -360,6 +955,4 @@ public static class FlexonBinary
 
         return !errors.Any();
     }
-
 }
-

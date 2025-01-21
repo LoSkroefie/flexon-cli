@@ -1,0 +1,14 @@
+{
+    "name": "flexon/game-state",
+    "description": "Game state example for Flexon CLI",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "intervention/image": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flexon\\Examples\\": "src/"
+        }
+    }
+}
