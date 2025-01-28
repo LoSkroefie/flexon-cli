@@ -25,60 +25,37 @@
 - **🔍 Advanced Inspection**: Rich data inspection and validation tools
 - **🌐 Multi-Language Examples**: Complete examples in Python, Ruby, PHP, Java, and more
 
-## 🌟 Key Features
+## 🔧 Installation Options
 
-- **📦 Ultra-Compact**: Up to 80% smaller than equivalent JSON files through smart binary encoding and built-in compression
-- **⚡ Lightning Fast**: Binary format enables blazing-fast parsing and serialization
-- **🔒 Type-Safe**: Native support for rich data types including DateTime, UUID, and binary data
-- **✅ Schema Validation**: Built-in JSON Schema validation for data integrity
-- **🔄 JSON Compatible**: Seamless conversion between JSON and Flexon formats
-- **🔐 Multiple Encryption Options**: 
-  - AES-256 (default): Industry-standard symmetric encryption
-  - ChaCha20-Poly1305: Modern, high-performance encryption
-  - Triple DES: Legacy system compatibility
-- **📁 Binary Data Support**: Direct handling of images and binary files
-- **📊 Performance Metrics**: Built-in benchmarking tools
-- **💪 Cross-Platform**: Works across all major platforms and programming languages
-- **🛠️ Developer Friendly**: Comprehensive tooling and language bindings
-- **🤖 AI Support**: Built-in AI data structures and embeddings generation
-- **🔍 Advanced Inspection**: Rich data inspection and validation tools
-- **🌐 Multi-Language Examples**: Complete examples in Python, Ruby, PHP, Java, and more
-
-## 🤖 AI Features
-
-FlexonCLI includes built-in support for AI-related data structures and operations:
-
-1. **Prompt Management**
-   - Store and version AI prompts
-   - Schema validation for prompt structure
-   - Metadata tracking and versioning
-
-2. **Training Data**
-   - Efficient storage of training datasets
-   - Built-in validation for data quality
-   - Support for embeddings and vectors
-
-3. **Security Features**
-   - Fingerprinting for data integrity
-   - Audit trails for data usage
-   - Secure prompt storage
-
-4. **AI Data Types**
-   - Vector embeddings
-   - Sparse matrices
-   - Tensor data structures
-
-Example AI data usage:
+### NuGet Package
 ```bash
-# Store AI prompts with validation
-flexon-cli serialize -i prompts.json -o ai_prompts.flexon -s prompt_schema.json
+# Install as a NuGet package
+dotnet add package FlexonCLI
 
-# Package training data with embeddings
-flexon-cli serialize -i training_data.json -i embeddings.bin -o ai_package.flexon
-
-# Secure AI data with encryption
-flexon-cli serialize -i sensitive_prompts.json -o secure_ai.flexon -e myKey ChaCha20
+# Reference specific platform
+dotnet add package FlexonCLI --framework net8.0-windows
+dotnet add package FlexonCLI --framework net8.0-linux
+dotnet add package FlexonCLI --framework net8.0-osx
 ```
+
+### Global Tool
+```bash
+# Install as a global .NET tool
+dotnet tool install -g FlexonCLI
+```
+
+## 💻 Platform Support
+
+FlexonCLI is available for multiple platforms:
+
+- **Windows**: x64, ARM64
+- **Linux**: x64, ARM64
+- **macOS**: x64, ARM64
+
+Binary locations in NuGet package:
+- Windows: `runtimes/win-x64/native/` and `runtimes/win-arm64/native/`
+- Linux: `runtimes/linux-x64/native/` and `runtimes/linux-arm64/native/`
+- macOS: `runtimes/osx-x64/native/` and `runtimes/osx-arm64/native/`
 
 ## 📚 Language Support
 
@@ -281,40 +258,82 @@ Visit our [comprehensive documentation](https://github.com/LoSkroefie/flexon-cli
 - [Performance Optimization](https://github.com/LoSkroefie/flexon-cli-src/wiki/Performance)
 - [Language Bindings](https://github.com/LoSkroefie/flexon-cli-src/wiki/Language-Bindings)
 
-## Documentation
+## 📚 Command Reference
 
-### Quick Links
-- [Installation Guide](docs/installation.md)
-- [Quick Start Guide](docs/quick-start.md)
-- [API Reference](docs/api-reference.md)
-- [Type System](docs/type-system.md)
-- [Schema Validation](docs/schema-validation.md)
-- [Performance Guide](docs/performance.md)
-- [Best Practices](docs/best-practices.md)
-- [Migration Guide](docs/migration.md)
-- [FAQ](docs/faq.md)
+### Main Commands
 
-### Developer Resources
-- [Contributing Guide](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Security Policy](SECURITY.md)
-- [Release Process](docs/release-process.md)
-- [Architecture Guide](docs/architecture.md)
+```bash
+flexon-cli <command> [options]
+```
 
-### API Documentation
-- [.NET API Docs](docs/api/dotnet/)
-- [Python API Docs](docs/api/python/)
-- [Node.js API Docs](docs/api/nodejs/)
-- [Java API Docs](docs/api/java/)
-- [Go API Docs](docs/api/go/)
-- [Rust API Docs](docs/api/rust/)
+#### Core Commands
+- `serialize`: Convert files to Flexon format
+- `deserialize`: Convert Flexon files back to original format
+- `benchmark`: Run performance tests
+- `help`: Display help information
 
-### Examples
-- [Basic Usage](examples/basic/)
-- [Advanced Features](examples/advanced/)
-- [Integration Examples](examples/integration/)
-- [Performance Optimization](examples/performance/)
-- [Real-world Use Cases](examples/use-cases/)
+#### Legacy Commands
+- `encode`: Convert JSON to Flexon (legacy)
+- `decode`: Convert Flexon to JSON (legacy)
+- `inspect`: View Flexon file contents
+- `validate`: Validate Flexon against schema
+- `encrypt`: Encrypt existing Flexon file
+- `decrypt`: Decrypt encrypted Flexon file
+
+### Global Options
+
+- `-i, --input`: Input file(s) to process (can specify multiple)
+- `-o, --output`: Output file or directory
+- `-s, --schema`: JSON schema file for validation
+- `-e, --encrypt`: Encryption key and optional algorithm
+- `-c, --compression`: Compression method
+- `-b, --benchmark`: Enable performance benchmarking
+
+### Compression Methods
+
+FlexonCLI supports multiple compression algorithms:
+
+- `None`: No compression
+- `GZip`: Standard GZip compression (default)
+- `Deflate`: Deflate algorithm
+- `Brotli`: High-compression Brotli algorithm
+
+Example:
+```bash
+# Use Brotli compression
+flexon-cli serialize -i data.json -o compressed.flexon -c Brotli
+```
+
+### Encryption Options
+
+Three encryption algorithms are supported:
+
+1. **AES-256 (Default)**
+   - Industry-standard symmetric encryption
+   - 256-bit key length
+   - Secure for most use cases
+
+2. **ChaCha20-Poly1305**
+   - Modern, high-performance encryption
+   - Excellent for mobile/ARM devices
+   - Built-in authentication
+
+3. **TripleDES**
+   - Legacy system compatibility
+   - 168-bit effective key length
+   - FIPS 46-3 compliant
+
+Example usage:
+```bash
+# Default AES-256 encryption
+flexon-cli serialize -i data.json -o secure.flexon -e myKey
+
+# ChaCha20 encryption
+flexon-cli serialize -i data.json -o secure.flexon -e myKey ChaCha20
+
+# TripleDES encryption
+flexon-cli serialize -i data.json -o secure.flexon -e myKey TripleDES
+```
 
 ## 🤖 AI Integration Features
 
@@ -438,3 +457,146 @@ Special thanks to our contributors and the open-source community!
 ---
 
 <p align="center">Made with ❤️ by the FlexonCLI Team</p>
+
+## 📚 Using FlexonCLI as a Library
+
+### NuGet Installation
+
+```bash
+# Add FlexonCLI to your .NET project
+dotnet add package FlexonCLI
+```
+
+### API Reference
+
+#### Core Classes
+
+1. **FlexonBinary**
+```csharp
+// Serialize object to Flexon binary format
+using FlexonCLI;
+
+// Basic serialization
+var data = new { name = "test", value = 123 };
+byte[] flexonBytes = FlexonBinary.Encode(data);
+
+// Serialization with encryption
+var encryptedBytes = FlexonBinary.Encode(data, "mySecretKey", EncryptionType.AES256);
+
+// Deserialization
+var obj = FlexonBinary.Decode<MyClass>(flexonBytes);
+var decryptedObj = FlexonBinary.Decode<MyClass>(encryptedBytes, "mySecretKey");
+```
+
+2. **FlexonSchema**
+```csharp
+// Validate data against JSON schema
+bool isValid = FlexonSchema.Validate(data, schemaJson);
+
+// Get validation errors
+var errors = FlexonSchema.GetValidationErrors(data, schemaJson);
+```
+
+3. **FlexonCompression**
+```csharp
+// Compress data
+byte[] compressed = FlexonCompression.Compress(originalBytes);
+
+// Decompress data
+byte[] decompressed = FlexonCompression.Decompress(compressed);
+```
+
+4. **FlexonAI**
+```csharp
+// Work with AI data structures
+var embedding = FlexonAI.GenerateEmbedding(text);
+float similarity = FlexonAI.CosineSimilarity(embedding1, embedding2);
+```
+
+### Platform-Specific Binary Locations
+
+When using FlexonCLI as a NuGet package, binaries are located in:
+
+- Windows x64: `tools/win-x64/FlexonCLI.exe`
+- Windows ARM64: `tools/win-arm64/FlexonCLI.exe`
+- Linux x64: `tools/linux-x64/FlexonCLI`
+- Linux ARM64: `tools/linux-arm64/FlexonCLI`
+- macOS x64: `tools/osx-x64/FlexonCLI`
+- macOS ARM64: `tools/osx-arm64/FlexonCLI`
+
+### Example: Using FlexonCLI in a .NET Application
+
+```csharp
+using FlexonCLI;
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        // Create sample data
+        var data = new
+        {
+            name = "Example",
+            numbers = new[] { 1, 2, 3 },
+            timestamp = DateTime.Now
+        };
+
+        // Serialize to Flexon with encryption
+        byte[] encrypted = FlexonBinary.Encode(
+            data,
+            "mySecretKey",
+            EncryptionType.ChaCha20
+        );
+
+        // Save to file
+        File.WriteAllBytes("data.flexon", encrypted);
+
+        // Read and decrypt
+        byte[] read = File.ReadAllBytes("data.flexon");
+        var decrypted = FlexonBinary.Decode<dynamic>(
+            read,
+            "mySecretKey"
+        );
+
+        Console.WriteLine($"Name: {decrypted.name}");
+        Console.WriteLine($"First number: {decrypted.numbers[0]}");
+        Console.WriteLine($"Timestamp: {decrypted.timestamp}");
+    }
+}
+```
+
+### Advanced Features
+
+1. **Custom Type Handling**
+```csharp
+// Register custom type converter
+FlexonBinary.RegisterTypeConverter<MyCustomType>(
+    // Serialize
+    (obj) => JsonSerializer.Serialize(obj),
+    // Deserialize
+    (json) => JsonSerializer.Deserialize<MyCustomType>(json)
+);
+```
+
+2. **Streaming API**
+```csharp
+// Stream large data
+using (var stream = File.OpenWrite("large.flexon"))
+{
+    FlexonBinary.EncodeToStream(largeData, stream);
+}
+```
+
+3. **Schema Generation**
+```csharp
+// Generate JSON schema from .NET type
+string schema = FlexonSchema.GenerateSchema<MyClass>();
+```
+
+4. **Performance Optimization**
+```csharp
+// Use buffer pool for large data
+using var buffer = FlexonBinary.GetBuffer();
+FlexonBinary.EncodeWithBuffer(data, buffer);
+```
