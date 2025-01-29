@@ -1,0 +1,24 @@
+# Archives
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+*.rar filter=lfs diff=lfs merge=lfs -text
+# Binaries
+*.dll filter=lfs diff=lfs merge=lfs -text
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.so filter=lfs diff=lfs merge=lfs -text
+*.dylib filter=lfs diff=lfs merge=lfs -text
+# Example data files
+Website/downloads/examples/*.* filter=lfs diff=lfs merge=lfs -text
+Examples/**/*.bin filter=lfs diff=lfs merge=lfs -text
+Examples/**/*.dat filter=lfs diff=lfs merge=lfs -text
+# Documentation assets
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.pptx filter=lfs diff=lfs merge=lfs -text
+*.docx filter=lfs diff=lfs merge=lfs -text
+# Images (if larger than 1MB)
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.psd filter=lfs diff=lfs merge=lfs -text
+Website/downloads/examples/*.zip filter=lfs diff=lfs merge=lfs -text
