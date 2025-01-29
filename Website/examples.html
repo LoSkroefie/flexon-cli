@@ -9,6 +9,44 @@
     <meta name="robots" content="index, follow">
     <title>Examples - FLEXON CLI</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+        pre code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre;
+        }
+        .example-section {
+            margin-bottom: 40px;
+        }
+        .download-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .language-header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: -1px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -30,11 +68,27 @@
             <h2>FLEXON CLI Examples</h2>
             <p>Explore comprehensive examples of FLEXON CLI usage across different programming languages and scenarios. Each example includes detailed explanations and complete code samples.</p>
 
+            <div class="download-section">
+                <h3>Example Downloads</h3>
+                <p>All examples shown below are available for download in our Examples repository. Languages available:</p>
+                <ul>
+                    <li>C# Examples - Basic usage, AI features, Game state, Security</li>
+                    <li>Java Examples - Game state management, Data processing</li>
+                    <li>Python Examples - AI integration, Performance testing</li>
+                    <li>JavaScript Examples - Web integration, Real-time processing</li>
+                    <li>PHP Examples - Benchmarking, Secure configuration</li>
+                    <li>Go Examples - Basic implementation</li>
+                    <li>Ruby Examples - Data processing</li>
+                    <li>Rust Examples - High-performance implementation</li>
+                </ul>
+                <p>Download the complete examples from our <a href="downloads.html">downloads page</a>.</p>
+            </div>
+
             <!-- Basic Usage Section -->
             <section class="example-section">
                 <h3>1. Basic Usage</h3>
 
-                <h4>C# Basic Usage</h4>
+                <div class="language-header">C# Basic Usage</div>
                 <pre><code class="language-csharp">
 using FlexonCLI;
 using System.Text.Json;
@@ -51,9 +105,9 @@ var readData = File.ReadAllBytes("data.flexon");
 var result = Flexon.Deserialize<dynamic>(readData);
 
 Console.WriteLine($"Name: {result.Name}, Age: {result.Age}");
-                </code></pre>
+</code></pre>
 
-                <h4>Java Basic Usage</h4>
+                <div class="language-header">Java Basic Usage</div>
                 <pre><code class="language-java">
 import com.flexon.FlexonCLI;
 import com.flexon.FlexonObject;
@@ -77,370 +131,176 @@ public class BasicUsage {
                          ", Age: " + result.getInt("age"));
     }
 }
-                </code></pre>
+</code></pre>
 
-                <h4>Python Basic Usage</h4>
+                <div class="language-header">Python Basic Usage</div>
                 <pre><code class="language-python">
 from flexon import FlexonCLI
 
-// Create data dictionary
+# Create data dictionary
 data = {
     "name": "John",
     "age": 30
 }
 
-// Serialize to FLEXON
+# Serialize to FLEXON
 flexon_data = FlexonCLI.serialize(data)
 with open("data.flexon", "wb") as f:
     f.write(flexon_data)
 
-// Deserialize from FLEXON
+# Deserialize from FLEXON
 with open("data.flexon", "rb") as f:
     read_data = f.read()
 result = FlexonCLI.deserialize(read_data)
 
 print(f"Name: {result['name']}, Age: {result['age']}")
-                </code></pre>
+</code></pre>
 
-                <h4>JavaScript Basic Usage</h4>
-                <pre><code class="language-javascript">
-const FlexonCLI = require('flexon-cli');
-const fs = require('fs').promises;
-
-async function basicUsage() {
-    // Create data object
-    const data = {
-        name: "John",
-        age: 30
-    };
-
-    // Serialize to FLEXON
-    const flexonData = FlexonCLI.serialize(data);
-    await fs.writeFile('data.flexon', flexonData);
-
-    // Deserialize from FLEXON
-    const readData = await fs.readFile('data.flexon');
-    const result = FlexonCLI.deserialize(readData);
-
-    console.log(`Name: ${result.name}, Age: ${result.age}`);
-}
-
-basicUsage().catch(console.error);
-                </code></pre>
             </section>
 
-            <!-- AI Features Section -->
+            <!-- Game State Management Section -->
             <section class="example-section">
-                <h3>2. AI Features</h3>
+                <h3>2. Game State Management</h3>
+                <p>Example of using FLEXON CLI for efficient game state serialization and management.</p>
 
-                <h4>Python AI Data Processing</h4>
-                <pre><code class="language-python">
-from flexon import FlexonCLI, AIFeatures
-
-// Sample data with text for analysis
-data = {
-    "text": "The quick brown fox jumps over the lazy dog",
-    "metadata": {
-        "language": "en",
-        "priority": "high"
-    }
-}
-
-// Initialize AI features
-ai = AIFeatures()
-
-// Analyze sentiment and extract keywords
-analysis = ai.analyze_text(data["text"])
-
-// Add AI analysis to data
-data["analysis"] = {
-    "sentiment": analysis.sentiment,
-    "keywords": analysis.keywords,
-    "summary": analysis.summary
-}
-
-// Serialize enriched data
-flexon_data = FlexonCLI.serialize(data)
-with open("ai_processed.flexon", "wb") as f:
-    f.write(flexon_data)
-                </code></pre>
-
-                <h4>C# AI Integration</h4>
-                <pre><code class="language-csharp">
-using FlexonCLI;
-using FlexonCLI.AI;
-
-// Initialize AI processor
-var aiProcessor = new AIFeatures();
-
-// Sample document data
-var document = new {
-    Content = "Important business document about AI integration",
-    Metadata = new {
-        Author = "Jane Smith",
-        Date = DateTime.Now
-    }
-};
-
-// Process with AI
-var aiResult = aiProcessor.ProcessDocument(document);
-
-// Combine original data with AI insights
-var enrichedData = new {
-    Original = document,
-    AIInsights = new {
-        Category = aiResult.Category,
-        Keywords = aiResult.Keywords,
-        Summary = aiResult.Summary,
-        Importance = aiResult.ImportanceScore
-    }
-};
-
-// Serialize enriched data
-var flexonData = Flexon.Serialize(enrichedData);
-File.WriteAllBytes("ai_enriched.flexon", flexonData);
-                </code></pre>
-            </section>
-
-            <!-- Game State Section -->
-            <section class="example-section">
-                <h3>3. Game State Management</h3>
-
-                <h4>Java Game State</h4>
+                <div class="language-header">Java Game State Example</div>
                 <pre><code class="language-java">
 import com.flexon.FlexonCLI;
-import com.flexon.GameState;
+import com.flexon.examples.game.GameState;
 
 public class GameStateExample {
     public static void main(String[] args) {
         // Create game state
-        GameState state = new GameState();
-        state.setPlayerPosition(new Vector3(10.5f, 0, 15.2f));
-        state.setHealth(100);
-        state.setInventory(new String[]{"Sword", "Shield", "Potion"});
-
+        GameState gameState = new GameState();
+        gameState.setPlayerPosition(new Vector3(100, 200, 300));
+        gameState.setHealth(100);
+        gameState.addInventoryItem("Sword", 1);
+        
         // Save game state
-        byte[] stateData = FlexonCLI.serialize(state);
-        Files.write(Paths.get("save.flexon"), stateData);
-
+        byte[] savedState = FlexonCLI.serialize(gameState);
+        Files.write(Paths.get("save.flexon"), savedState);
+        
         // Load game state
         byte[] loadedData = Files.readAllBytes(Paths.get("save.flexon"));
         GameState loadedState = FlexonCLI.deserialize(loadedData, GameState.class);
-
-        // Verify state
+        
         System.out.println("Player position: " + loadedState.getPlayerPosition());
         System.out.println("Health: " + loadedState.getHealth());
-        System.out.println("Inventory: " + 
-            String.join(", ", loadedState.getInventory()));
     }
 }
-                </code></pre>
-
-                <h4>C# Game State</h4>
-                <pre><code class="language-csharp">
-using FlexonCLI;
-using UnityEngine;
-
-public class GameStateManager
-{
-    public void SaveGameState(GameState state)
-    {
-        var stateData = Flexon.Serialize(state);
-        File.WriteAllBytes("save.flexon", stateData);
-    }
-
-    public GameState LoadGameState()
-    {
-        var stateData = File.ReadAllBytes("save.flexon");
-        return Flexon.Deserialize<GameState>(stateData);
-    }
-}
-
-public class GameState
-{
-    public Vector3 PlayerPosition { get; set; }
-    public int Health { get; set; }
-    public string[] Inventory { get; set; }
-    public Dictionary<string, int> Stats { get; set; }
-}
-                </code></pre>
+</code></pre>
             </section>
 
-            <!-- Performance Benchmarking -->
+            <!-- Security Features Section -->
+            <section class="example-section">
+                <h3>3. Security Features</h3>
+                <p>Examples of secure configuration and encrypted storage using FLEXON CLI.</p>
+
+                <div class="language-header">PHP Secure Configuration</div>
+                <pre><code class="language-php">
+<?php
+require_once 'vendor/autoload.php';
+
+use FlexonCLI\Security\SecureConfig;
+
+// Initialize secure configuration
+$config = new SecureConfig();
+
+// Store sensitive data
+$config->setEncrypted('api_key', 'your-secret-api-key');
+$config->setEncrypted('database_password', 'db-password');
+
+// Save encrypted configuration
+$config->saveToFile('config.flexon');
+
+// Load and use secure configuration
+$loadedConfig = SecureConfig::loadFromFile('config.flexon');
+$apiKey = $loadedConfig->getDecrypted('api_key');
+
+echo "Securely accessed API key: " . $apiKey;
+?>
+</code></pre>
+            </section>
+
+            <!-- Performance Benchmarking Section -->
             <section class="example-section">
                 <h3>4. Performance Benchmarking</h3>
+                <p>Example of benchmarking FLEXON CLI performance against other serialization formats.</p>
 
-                <h4>C# Benchmarking</h4>
-                <pre><code class="language-csharp">
-using FlexonCLI;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
+                <div class="language-header">PHP Benchmarking Example</div>
+                <pre><code class="language-php">
+<?php
+require_once 'vendor/autoload.php';
 
-[MemoryDiagnoser]
-public class FlexonBenchmarks
-{
-    private readonly object _testData;
-    private byte[] _serializedData;
+use FlexonCLI\Benchmark;
 
-    [Benchmark]
-    public byte[] Serialize()
-    {
-        return Flexon.Serialize(_testData);
-    }
+// Prepare test data
+$testData = [
+    'id' => 1,
+    'name' => 'Test Object',
+    'data' => array_fill(0, 1000, 'test')
+];
 
-    [Benchmark]
-    public object Deserialize()
-    {
-        return Flexon.Deserialize<object>(_serializedData);
-    }
+// Benchmark FLEXON vs JSON
+$benchmark = new Benchmark();
+$results = $benchmark->compare([
+    'flexon' => fn() => FlexonCLI::serialize($testData),
+    'json' => fn() => json_encode($testData)
+], 1000);
 
-    [Benchmark]
-    public void SerializeParallel()
-    {
-        Parallel.ForEach(Enumerable.Range(0, 1000), _ =>
-        {
-            Flexon.Serialize(_testData);
-        });
-    }
-}
-                </code></pre>
-
-                <h4>Python Benchmarking</h4>
-                <pre><code class="language-python">
-from flexon import FlexonCLI
-import timeit
-import json
-import msgpack
-
-test_data = {
-    "id": 12345,
-    "name": "Test Object",
-    "values": list(range(1000)),
-    "nested": {
-        "a": 1,
-        "b": 2,
-        "c": [3, 4, 5]
-    }
-}
-
-def benchmark_flexon():
-    // FLEXON serialization
-    flexon_time = timeit.timeit(
-        lambda: FlexonCLI.serialize(test_data),
-        number=1000
-    )
-    
-    // JSON serialization
-    json_time = timeit.timeit(
-        lambda: json.dumps(test_data),
-        number=1000
-    )
-    
-    // MessagePack serialization
-    msgpack_time = timeit.timeit(
-        lambda: msgpack.packb(test_data),
-        number=1000
-    )
-    
-    print(f"FLEXON: {flexon_time:.4f}s")
-    print(f"JSON: {json_time:.4f}s")
-    print(f"MessagePack: {msgpack_time:.4f}s")
-
-if __name__ == "__main__":
-    benchmark_flexon()
-                </code></pre>
+echo "Results (average time in ms):\n";
+echo "FLEXON: " . $results['flexon'] . "\n";
+echo "JSON: " . $results['json'] . "\n";
+?>
+</code></pre>
             </section>
 
-            <!-- Security Examples -->
+            <!-- AI Features Section -->
             <section class="example-section">
-                <h3>5. Security Features</h3>
+                <h3>5. AI Features</h3>
+                <p>Examples of using FLEXON CLI's AI capabilities for data processing and analysis.</p>
 
-                <h4>C# Encrypted Storage</h4>
-                <pre><code class="language-csharp">
-using FlexonCLI;
-using FlexonCLI.Security;
-
-public class SecureStorage
-{
-    private readonly IEncryptionProvider _encryption;
-    
-    public SecureStorage(IEncryptionProvider encryption)
-    {
-        _encryption = encryption;
-    }
-
-    public void SaveSecure<T>(T data, string path)
-    {
-        var flexonData = Flexon.Serialize(data);
-        var encryptedData = _encryption.Encrypt(flexonData);
-        File.WriteAllBytes(path, encryptedData);
-    }
-
-    public T LoadSecure<T>(string path)
-    {
-        var encryptedData = File.ReadAllBytes(path);
-        var flexonData = _encryption.Decrypt(encryptedData);
-        return Flexon.Deserialize<T>(flexonData);
-    }
-}
-                </code></pre>
-
-                <h4>Python Secure Configuration</h4>
+                <div class="language-header">Python AI Integration</div>
                 <pre><code class="language-python">
-from flexon import FlexonCLI
-from flexon.security import EncryptionProvider
-from cryptography.fernet import Fernet
+from flexon import FlexonCLI, AIFeatures
 
-class SecureConfig:
-    def __init__(self):
-        self.key = Fernet.generate_key()
-        self.encryption = EncryptionProvider(self.key)
-    
-    def save_config(self, config_data, path):
-        // Serialize and encrypt
-        flexon_data = FlexonCLI.serialize(config_data)
-        encrypted_data = self.encryption.encrypt(flexon_data)
-        
-        with open(path, 'wb') as f:
-            f.write(encrypted_data)
-    
-    def load_config(self, path):
-        // Decrypt and deserialize
-        with open(path, 'rb') as f:
-            encrypted_data = f.read()
-        
-        flexon_data = self.encryption.decrypt(encrypted_data)
-        return FlexonCLI.deserialize(flexon_data)
+# Initialize AI features
+ai = AIFeatures()
 
-// Usage example
-config = SecureConfig()
-sensitive_data = {
-    "api_key": "secret_key_123",
-    "database": {
-        "username": "admin",
-        "password": "secure_password"
+# Sample document for analysis
+document = {
+    "content": "Important business document about AI integration",
+    "metadata": {
+        "author": "Jane Smith",
+        "date": "2025-01-21"
     }
 }
 
-config.save_config(sensitive_data, "secure_config.flexon")
-loaded_config = config.load_config("secure_config.flexon")
-                </code></pre>
+# Process with AI
+ai_result = ai.process_document(document)
+
+# Combine original data with AI insights
+enriched_data = {
+    "original": document,
+    "ai_insights": {
+        "category": ai_result.category,
+        "keywords": ai_result.keywords,
+        "summary": ai_result.summary,
+        "importance_score": ai_result.importance_score
+    }
+}
+
+# Serialize enriched data
+flexon_data = FlexonCLI.serialize(enriched_data)
+with open("ai_processed.flexon", "wb") as f:
+    f.write(flexon_data)
+</code></pre>
             </section>
         </div>
     </main>
 
     <footer>
-        <nav class="footer-menu">
-            <a href="index.html">Home</a> |
-            <a href="downloads.html">Downloads</a> |
-            <a href="examples.html">Examples</a> |
-            <a href="tutorials.html">Tutorials</a> |
-            <a href="guides.html">Guides</a> |
-            <a href="benchmarks.html">Benchmarks</a> |
-            <a href="terms-of-use.html">Terms of Use</a> |
-            <a href="contact.html">Contact</a>
-        </nav>
-        <p>&copy; 2025 JVR Software. All rights reserved.</p>
+        <p>&copy; 2025 FLEXON CLI. All rights reserved.</p>
     </footer>
 </body>
 </html>
