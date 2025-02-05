@@ -1,7 +1,7 @@
 # 🚀 FlexonCLI - The Next Generation Data Format
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/LoSkroefie/flexon-cli-src)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/LoSkroefie/flexon-cli-src)
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download)
 
 > **FlexonCLI** is a revolutionary binary data format and toolset that combines the simplicity of JSON with the power and efficiency of binary encoding. It's faster, smaller, and more capable than traditional JSON, while maintaining full compatibility with existing JSON workflows.
@@ -24,6 +24,7 @@
 - **🤖 AI Support**: Built-in AI data structures and embeddings generation
 - **🔍 Advanced Inspection**: Rich data inspection and validation tools
 - **🌐 Multi-Language Examples**: Complete examples in Python, Ruby, PHP, Java, and more
+- **🔮 Quantum Features**: Quantum-resistant encryption, secure digital signatures, and advanced compression using quantum algorithms
 
 ## 🔧 Installation Options
 
@@ -163,39 +164,33 @@ flexon-cli inspect input.flexon
 flexon-cli validate input.flexon schema.json
 ```
 
-### Advanced Usage
+### Quantum Features Usage
 
-#### Mixed Data Serialization
+1. **Quantum Encryption**
 ```bash
-# Combine JSON configuration with binary assets
-flexon-cli serialize \
-  -i config.json \
-  -i logo.png \
-  -i styles.css \
-  -o application_package.flexon \
-  -e mySecretKey
+# Encrypt with QuantumAES
+flexon encrypt sensitive.txt -e mykey --algorithm QuantumAES
+
+# Sign with QuantumSignature
+flexon sign document.txt --algorithm QuantumSignature
 ```
 
-#### Performance Testing
+2. **Quantum Compression**
 ```bash
-# Run comprehensive benchmark
-flexon-cli benchmark -i large_dataset.json -o benchmark.flexon -b
+# Compress with quantum algorithms
+flexon compress large.dat --method QuantumCompression
 
-# Benchmark with encryption
-flexon-cli benchmark -i large_dataset.json -o benchmark.flexon -e mySecretKey -b
+# Lossless compression
+flexon compress important.dat --method QuantumLossless
 ```
 
-#### Schema Validation
+3. **Full Quantum Processing**
 ```bash
-# Validate data against schema during serialization
-flexon-cli serialize -i data.json -o valid_data.flexon -s schema.json
+# Process in quantum mode
+flexon process data.txt --mode Quantum
 
-# Complex validation with multiple inputs
-flexon-cli serialize \
-  -i user_data.json \
-  -i preferences.json \
-  -o validated_package.flexon \
-  -s user_schema.json
+# Hybrid processing
+flexon process data.txt --mode Hybrid
 ```
 
 ## 🔐 Encryption Support
@@ -216,6 +211,10 @@ FlexonCLI supports multiple encryption algorithms to suit different needs:
    - Legacy encryption support
    - Compatible with older systems
    - Use only when legacy compatibility is required
+
+4. **QuantumAES**
+   - Quantum-resistant encryption
+   - Future-proof security
 
 The encryption algorithm is stored within the encrypted file, so decryption automatically uses the correct algorithm.
 
@@ -297,6 +296,7 @@ FlexonCLI supports multiple compression algorithms:
 - `GZip`: Standard GZip compression (default)
 - `Deflate`: Deflate algorithm
 - `Brotli`: High-compression Brotli algorithm
+- `QuantumCompression`: Advanced compression using quantum algorithms
 
 Example:
 ```bash
@@ -306,7 +306,7 @@ flexon-cli serialize -i data.json -o compressed.flexon -c Brotli
 
 ### Encryption Options
 
-Three encryption algorithms are supported:
+Four encryption algorithms are supported:
 
 1. **AES-256 (Default)**
    - Industry-standard symmetric encryption
@@ -323,17 +323,11 @@ Three encryption algorithms are supported:
    - 168-bit effective key length
    - FIPS 46-3 compliant
 
-Example usage:
-```bash
-# Default AES-256 encryption
-flexon-cli serialize -i data.json -o secure.flexon -e myKey
+4. **QuantumAES**
+   - Quantum-resistant encryption
+   - Future-proof security
 
-# ChaCha20 encryption
-flexon-cli serialize -i data.json -o secure.flexon -e myKey ChaCha20
-
-# TripleDES encryption
-flexon-cli serialize -i data.json -o secure.flexon -e myKey TripleDES
-```
+The encryption algorithm is stored within the encrypted file, so decryption automatically uses the correct algorithm.
 
 ## 🤖 AI Integration Features
 
@@ -437,6 +431,7 @@ The `AIUtils` class provides helper functions for:
 - **Big Data Processing**: Fast serialization for large datasets
 - **Real-time Systems**: Low-latency data exchange
 - **Configuration Management**: Type-safe configuration files
+- **Quantum Computing**: Quantum-resistant encryption and compression
 
 ## 🤝 Contributing
 
