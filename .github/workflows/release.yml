@@ -3,6 +3,12 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to rebuild and publish (for example v3.0.0)
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -16,17 +22,19 @@ jobs:
     runs-on: windows-latest
     env:
       NUGET_USER: ${{ secrets.NUGET_USER }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
       - name: Verify tag matches project version
         shell: pwsh
         run: |
-          $tag = '${{ github.ref_name }}'.TrimStart('v')
+          $tag = $env:RELEASE_TAG.TrimStart('v')
           [xml]$props = Get-Content -Raw Directory.Build.props
           $version = $props.Project.PropertyGroup.VersionPrefix
           if ($tag -ne $version) { throw "Tag $tag does not match project version $version" }
@@ -41,12 +49,28 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create '${{ github.ref_name }}' artifacts/* --verify-tag --generate-notes --title 'FLEXON CLI ${{ github.ref_name }}'
+        run: |
+          $tag = $env:RELEASE_TAG
+          $assets = @(Get-ChildItem -LiteralPath artifacts -File | ForEach-Object FullName)
+          if ($assets.Count -eq 0) { throw 'No release artifacts were produced.' }
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @assets --clobber
+          } else {
+            gh release create $tag @assets --verify-tag --generate-notes --title "FLEXON CLI $tag"
+          }
+          if ($LASTEXITCODE -ne 0) { throw "Publishing GitHub release $tag failed." }
       - name: Publish NuGet packages to GitHub Packages
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: dotnet nuget push 'artifacts/*.nupkg' --api-key "$env:GITHUB_TOKEN" --source 'https://nuget.pkg.github.com/LoSkroefie/index.json' --skip-duplicate
+        run: |
+          $packages = @(Get-ChildItem -LiteralPath artifacts -Filter *.nupkg -File)
+          if ($packages.Count -eq 0) { throw 'No NuGet packages were produced.' }
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName --api-key $env:GITHUB_TOKEN --source 'https://nuget.pkg.github.com/LoSkroefie/index.json' --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "Publishing $($package.Name) to GitHub Packages failed." }
+          }
       - name: Obtain short-lived NuGet.org credential
         if: env.NUGET_USER != ''
         id: nuget
@@ -56,4 +80,12 @@ jobs:
       - name: Publish NuGet packages to NuGet.org
         if: env.NUGET_USER != ''
         shell: pwsh
-        run: dotnet nuget push 'artifacts/*.nupkg' --api-key '${{ steps.nuget.outputs.NUGET_API_KEY }}' --source 'https://api.nuget.org/v3/index.json' --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+        run: |
+          $packages = @(Get-ChildItem -LiteralPath artifacts -Filter *.nupkg -File)
+          if ($packages.Count -eq 0) { throw 'No NuGet packages were produced.' }
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName --api-key $env:NUGET_API_KEY --source 'https://api.nuget.org/v3/index.json' --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "Publishing $($package.Name) to NuGet.org failed." }
+          }

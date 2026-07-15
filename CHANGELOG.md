@@ -2,6 +2,14 @@
 
 All notable changes are documented here. This project follows semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- Release publication now enumerates NuGet packages explicitly on PowerShell instead of passing an unexpanded wildcard to `dotnet nuget push`.
+- A failed tagged publication can be safely resumed with a manual tag input; existing GitHub Release assets are replaced while package feeds use duplicate-safe pushes.
+- Distribution documentation now records the actual NuGet package owner, repository owner, trusted-publishing policy, recovery command, and live verification steps.
+
 ## [3.0.0] - 2026-07-15
 
 ### Added
@@ -35,5 +43,6 @@ All notable changes are documented here. This project follows semantic versionin
 
 - Initial public release. Retained for historical reference; v2 replaces its file writer.
 
+[Unreleased]: https://github.com/LoSkroefie/flexon-cli/compare/v3.0.0...HEAD
 [3.0.0]: https://github.com/LoSkroefie/flexon-cli/compare/v1.1.0...v3.0.0
 [1.1.0]: https://github.com/LoSkroefie/flexon-cli/releases/tag/v1.1.0

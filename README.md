@@ -3,6 +3,8 @@
 [![CI](https://github.com/LoSkroefie/flexon-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/LoSkroefie/flexon-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](CHANGELOG.md)
+[![FlexonCLI on NuGet](https://img.shields.io/nuget/v/FlexonCLI.svg?label=FlexonCLI)](https://www.nuget.org/packages/FlexonCLI)
+[![Flexon.Core on NuGet](https://img.shields.io/nuget/v/Flexon.Core.svg?label=Flexon.Core)](https://www.nuget.org/packages/Flexon.Core)
 
 FLEXON is a compact, versioned binary envelope for JSON-compatible values and file packages. Version 2 focuses on correctness, predictable resource limits, corruption detection, authenticated encryption, and safe command-line automation.
 
@@ -37,6 +39,13 @@ Run locally:
 
 ```powershell
 dotnet run --project FlexonCLI/FlexonCLI.csproj -- --help
+```
+
+Install the published CLI or library:
+
+```powershell
+dotnet tool install --global FlexonCLI --version 3.0.0
+dotnet add package Flexon.Core --version 3.0.0
 ```
 
 ## CLI quick start
@@ -93,7 +102,7 @@ var bytes = FlexonSerializer.Serialize(json.RootElement, new FlexonOptions
 var restored = FlexonSerializer.Deserialize(bytes);
 ```
 
-`Flexon.Core` and `FlexonCLI` are configured for NuGet packaging, but availability on a public feed depends on the release workflow actually publishing them.
+Release packages are published to [NuGet.org](https://www.nuget.org/profiles/jvrsoftware) and GitHub Packages by the verified tag workflow. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) for provenance, recovery, and feed-verification instructions.
 
 ## Compatibility
 
