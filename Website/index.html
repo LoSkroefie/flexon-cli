@@ -15,6 +15,7 @@
     <div class="actions">
       <a class="primary" href="https://github.com/LoSkroefie/flexon-cli">View source</a>
       <a href="https://github.com/LoSkroefie/flexon-cli/releases">Verified releases</a>
+      <a href="https://www.nuget.org/packages/FlexonCLI">Install from NuGet</a>
     </div>
     <section>
       <article><h2>Correct framing</h2><p>Length-prefixed arrays, objects, strings, and binary values preserve nested nulls and reject trailing data.</p></article>
@@ -25,6 +26,8 @@
     <pre><code>$env:FLEXON_PASSWORD = "from-your-secret-store"
 flexon-cli serialize -i data.json -o data.flexon --encryption AES256 --password-env FLEXON_PASSWORD
 flexon-cli deserialize -i data.flexon -o restored --password-env FLEXON_PASSWORD</code></pre>
+    <pre><code>dotnet tool install --global FlexonCLI --version 3.0.0
+dotnet add package Flexon.Core --version 3.0.0</code></pre>
     <p class="note">Performance varies by workload. FLEXON publishes no universal speed or compression claims without reproducible evidence.</p>
   </main>
 </body>
