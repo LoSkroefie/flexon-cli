@@ -1,64 +1,39 @@
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
+# .NET build and test outputs
+**/bin/
+**/obj/
+**/TestResults/
+artifacts/
+publish/
 
-# Visual Studio files
+# IDE and user state
 .vs/
+.vscode/
+.idea/
 *.user
-*.userosscache
-*.sln.docstates
-*.userprefs
-
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
+*.suo
+*.rsuser
 *.DotSettings.user
 
-# Visual Studio Code
-.vscode/
-*.code-workspace
-
-# Rider
-.idea/
-
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# NuGet Packages
+# Generated packages and binaries
 *.nupkg
 *.snupkg
-**/packages/*
-!**/packages/build/
+*.dll
+*.exe
+*.pdb
+*.class
+*.zip
+*.7z
+*.tar
+*.gz
 
-# Others
-*.swp
-*.*~
-project.lock.json
+# Generated data and benchmark output
+*.flexon
+BenchmarkDotNet.Artifacts/
+benchmark_results.json
+benchmark_report.html
+
+# Platform and editor noise
 .DS_Store
-*.pyc
-nupkg/
-
-# Test Results
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-
-# NUNIT
-*.VisualState.xml
-TestResult.xml
-nunit-*.xml
+Thumbs.db
+*.swp
+*~

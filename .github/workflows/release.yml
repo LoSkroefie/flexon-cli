@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      NUGET_USER: ${{ secrets.NUGET_USER }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - name: Verify tag matches project version
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'.TrimStart('v')
+          [xml]$props = Get-Content -Raw Directory.Build.props
+          $version = $props.Project.PropertyGroup.VersionPrefix
+          if ($tag -ne $version) { throw "Tag $tag does not match project version $version" }
+      - name: Build verified artifacts
+        shell: pwsh
+        run: ./scripts/build-release.ps1
+      - name: Attest release artifacts
+        uses: actions/attest@v4
+        with:
+          subject-checksums: artifacts/SHA256SUMS.txt
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create '${{ github.ref_name }}' artifacts/* --verify-tag --generate-notes --title 'FLEXON CLI ${{ github.ref_name }}'
+      - name: Publish NuGet packages to GitHub Packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: dotnet nuget push 'artifacts/*.nupkg' --api-key "$env:GITHUB_TOKEN" --source 'https://nuget.pkg.github.com/LoSkroefie/index.json' --skip-duplicate
+      - name: Obtain short-lived NuGet.org credential
+        if: env.NUGET_USER != ''
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ env.NUGET_USER }}
+      - name: Publish NuGet packages to NuGet.org
+        if: env.NUGET_USER != ''
+        shell: pwsh
+        run: dotnet nuget push 'artifacts/*.nupkg' --api-key '${{ steps.nuget.outputs.NUGET_API_KEY }}' --source 'https://api.nuget.org/v3/index.json' --skip-duplicate
