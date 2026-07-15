@@ -1,43 +1,39 @@
 # Changelog
 
-All notable changes to the Flexon CLI project will be documented in this file.
+All notable changes are documented here. This project follows semantic versioning.
 
-## [1.2.0] - 2025-01-21
-
-### Added
-- Binary data support for direct handling of images and other binary files
-- New compression options: Brotli compression alongside existing GZip and Deflate
-- Enhanced schema validation with detailed error reporting
-- Performance optimizations using SIMD instructions
-- Buffer pooling for improved memory management
-- Thread-safe operations for concurrent processing
-- Comprehensive benchmark suite for performance testing
-
-### Changed
-- Improved serialization performance by up to 40%
-- Reduced memory usage during large file processing
-- Enhanced error messages for better debugging
-- Updated documentation with new features and examples
-- Reorganized code structure for better maintainability
-
-### Fixed
-- Memory leak in compression stream handling
-- Race condition in concurrent file operations
-- Schema validation error reporting accuracy
-- File handling on case-sensitive file systems
-
-## [1.1.0] - 2024-12-15
+## [3.0.0] - 2026-07-15
 
 ### Added
-- Initial encryption support (AES-256, ChaCha20-Poly1305, Triple DES)
-- Basic schema validation
-- JSON compatibility layer
-- Command-line interface
-- Cross-platform support (Windows, Linux, macOS)
+
+- Versioned FLEXON v2 envelope with magic header, explicit lengths, checksum, and bounded decoding.
+- Reusable `Flexon.Core` library and properly configured `FlexonCLI` .NET tool package.
+- AES-256-GCM and ChaCha20-Poly1305 authenticated encryption with stored random salt and nonce.
+- Atomic output writes and safe package extraction.
+- Consistent non-zero CLI exit codes.
+- Automated correctness, corruption, encryption, legacy, schema, and traversal tests.
+- Cross-platform CI and tag-driven release workflows.
+- Formal format, security, architecture, migration, and benchmark-methodology documentation.
+- Detached ECDSA P-256 signatures with CLI and library APIs.
+- Deterministic interoperability vectors enforced by the test suite.
+- GitHub Packages, NuGet.org trusted-publishing, and build-provenance release automation.
 
 ### Changed
-- Initial public release
-- Basic documentation and examples
 
-[1.2.0]: https://github.com/LoSkroefie/flexon-cli/releases/tag/v1.2.0
+- Collections are length-prefixed, so nested nulls round-trip correctly.
+- Package and CLI versioning is unified at `3.0.0`; the on-disk format version remains v2.
+- Unsupported quantum, TripleDES, package-manager, binding, and benchmark claims were removed.
+- Generated binaries, archives, Java class files, and benchmark output are no longer source-controlled.
+
+### Compatibility
+
+- New writes use v2.
+- Unencrypted, unambiguous v1 files remain readable.
+- Encrypted v1 files are unrecoverable because v1 did not store the random KDF salt.
+
+## [1.1.0] - 2025-01-15
+
+- Initial public release. Retained for historical reference; v2 replaces its file writer.
+
+[3.0.0]: https://github.com/LoSkroefie/flexon-cli/compare/v1.1.0...v3.0.0
 [1.1.0]: https://github.com/LoSkroefie/flexon-cli/releases/tag/v1.1.0
