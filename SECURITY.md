@@ -17,3 +17,9 @@ Password-based encryption cannot compensate for a weak password. Use a password 
 The decoder rejects unknown versions and flags, invalid lengths, duplicate object keys, trailing bytes, checksum failures, authentication failures, excessive nesting, oversized values, oversized collections, and decompression beyond the configured limit. Package extraction accepts simple filenames only and checks final path containment.
 
 FLEXON v2 currently buffers a bounded payload in memory so authenticated encryption can be applied to the whole message. The default maximum is 512 MiB. Applications handling untrusted data should lower limits to the smallest practical values.
+
+## Reference-aware bundle boundaries
+
+Automatic attachment discovery is opt-in. It only includes existing relative file references beneath the configured base directory; URLs, missing paths, rooted paths, traversal, unsafe portable names, and paths outside the root are not included. Marked `$flexonFile` references are stricter and fail when missing or unsafe. Discovery rejects symbolic-link/reparse-point traversal, and extraction rejects reparse points and normalized destinations outside its output root.
+
+Use `--attachments marked` or explicit `--attach` values for security-sensitive packaging. Run `--dry-run` before discovery when JSON comes from another party. Review attachment paths and hashes, keep the base directory narrow, and set `--max-attachment-bytes` to the smallest useful limit. Explicit attachment sources are an authorization decision by the caller and may originate outside the JSON base directory, but their logical package paths remain constrained.

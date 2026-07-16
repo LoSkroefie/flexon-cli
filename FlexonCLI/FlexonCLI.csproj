@@ -9,7 +9,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>flexon-cli</ToolCommandName>
     <PackageId>FlexonCLI</PackageId>
-    <Description>Secure cross-platform CLI for the FLEXON v2 binary format.</Description>
+    <Description>Secure cross-platform CLI for FLEXON v2 values and reference-aware JSON plus binary bundles.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

@@ -24,6 +24,9 @@ Warnings are treated as errors. Every format or security change must include tes
 - Reject unknown flags and invalid lengths instead of guessing.
 - Do not weaken KDF limits, authentication, extraction containment, or decoder bounds.
 - Do not add performance or availability claims without reproducible public evidence.
+- Keep reference-aware attachment discovery opt-in and backward compatible with explicit multi-input packages.
+- Bundle changes require tests for marked and discovered references, missing files, path traversal, portable-name collisions, manifest tampering, size limits, and extraction containment.
+- Do not follow symbolic links, reparse points, remote URLs, or paths outside the declared base directory during automatic discovery.
 
 ## Pull requests
 
@@ -36,7 +39,7 @@ Before tagging, update `README.md`, `CHANGELOG.md`, and every affected file unde
 If a tag workflow fails after creating its GitHub Release, repair the workflow on `main` and resume that immutable tag with:
 
 ```powershell
-gh workflow run release.yml --repo LoSkroefie/flexon-cli -f tag=v3.0.0
+gh workflow run release.yml --repo LoSkroefie/flexon-cli -f tag=v3.1.0
 ```
 
 Do not move or recreate a published tag. The recovery path rebuilds the tagged commit, replaces existing GitHub assets, and uses duplicate-safe package pushes.

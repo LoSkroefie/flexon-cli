@@ -13,7 +13,7 @@ public static class FlexonSerializer
         if (!destination.CanWrite) throw new ArgumentException("Destination stream must be writable.", nameof(destination));
         options ??= new FlexonOptions();
         options.ValidateForWrite();
-        var encoded = BinaryCodec.Encode(value, options);
+        var encoded = BinaryCodec.Encode(value is FlexonBundle bundle ? bundle.ToPayload() : value, options);
         var envelope = EnvelopeCodec.Write(encoded, options);
         destination.Write(envelope);
     }
@@ -35,7 +35,8 @@ public static class FlexonSerializer
         if (EnvelopeCodec.HasMagic(file))
         {
             var payload = EnvelopeCodec.Read(file, options, out _);
-            return BinaryCodec.Decode(payload, options);
+            var value = BinaryCodec.Decode(payload, options);
+            return FlexonBundle.TryFromPayload(value, out var bundle) ? bundle : value;
         }
         return LegacyV1Reader.Read(file, options);
     }

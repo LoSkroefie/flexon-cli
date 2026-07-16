@@ -6,7 +6,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <PackageId>Flexon.Core</PackageId>
-    <Description>Versioned, bounded, and authenticated FLEXON binary serialization for .NET.</Description>
+    <Description>Versioned, bounded, authenticated FLEXON serialization and reference-aware JSON plus binary bundles for .NET.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
