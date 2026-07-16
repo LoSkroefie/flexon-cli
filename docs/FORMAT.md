@@ -50,6 +50,20 @@ The decompressed payload contains exactly one value. Lengths and counts are sign
 
 Object keys must be unique. A decoder must consume the payload exactly. This explicit framing replaces the ambiguous v1 null/end sentinel.
 
+## Reference-aware bundle profile
+
+`flexon-bundle/1` is a versioned application profile carried entirely by the v2 value model; it does not alter the envelope or binary tags. Its root object contains:
+
+| Key | Value |
+| --- | --- |
+| `$flexon` | Exact string `flexon-bundle/1`. |
+| `document` | Object containing simple `name` and JSON-compatible `content` values. |
+| `attachments` | Array of attachment objects. |
+
+Each attachment contains relative logical `path`, signed 64-bit `length`, lowercase hexadecimal `sha256`, `mediaType`, and native Binary `data`. Readers recognizing this profile must validate every field, path, declared length, digest, and duplicate before exposing or extracting the bundle. Unknown profiles remain ordinary FLEXON objects.
+
+Logical paths use `/`, must be relative, and must be portable across supported operating systems. Empty segments, `.`/`..`, control characters, Windows-invalid characters and reserved device names are forbidden. See `docs/BUNDLES.md` for discovery and extraction behavior.
+
 ## Compatibility
 
 Writers must emit v2. Readers may offer a separate v1 compatibility path, but v1 is not part of this specification. Any future incompatible change requires a new version byte.

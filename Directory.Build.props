@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionPrefix>3.1.0</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
     <Authors>JVR Software</Authors>
     <Copyright>Copyright JVR Software</Copyright>
     <PackageProjectUrl>https://github.com/LoSkroefie/flexon-cli</PackageProjectUrl>
-    <PackageTags>serialization;binary;json;encryption;compression;cli</PackageTags>
+    <PackageTags>serialization;binary;json;attachments;bundle;encryption;compression;cli</PackageTags>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/LoSkroefie/flexon-cli</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

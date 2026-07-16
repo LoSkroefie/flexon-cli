@@ -78,7 +78,10 @@ public static class CliApplication
     {
         var parsed = CommandOptions.Parse(args, allowMultipleInputs: true);
         parsed.RequireInputs();
-        parsed.RequireOutput();
+        if (!parsed.DryRun) parsed.RequireOutput();
+        if (parsed.UsesReferenceAwareBundle)
+            return SerializeReferenceAwareBundle(parsed, output, error);
+        if (parsed.DryRun) throw new CliUsageException("--dry-run requires --attachments marked, --attachments discover, --resolve-files, or --attach.");
         var package = new Dictionary<string, object?>(StringComparer.Ordinal);
         JsonElement? singleJson = null;
 
@@ -104,6 +107,36 @@ public static class CliApplication
         return 0;
     }
 
+    private static int SerializeReferenceAwareBundle(CommandOptions parsed, TextWriter output, TextWriter error)
+    {
+        if (parsed.Inputs.Count != 1 || !Path.GetExtension(parsed.Inputs[0]).Equals(".json", StringComparison.OrdinalIgnoreCase))
+            throw new CliUsageException("Reference-aware bundles require exactly one JSON input document.");
+        var input = parsed.Inputs[0];
+        _ = ReadInput(input, out var json);
+        if (json is null) throw new CliUsageException("Reference-aware bundles require a JSON input document.");
+        if (parsed.Schema is not null) ValidateAgainstSchema(json.Value, parsed.Schema);
+
+        var bundle = ReferenceAwareBundle.Build(
+            input,
+            json.Value,
+            parsed.AttachmentHandling,
+            parsed.BaseDirectory,
+            parsed.ExplicitAttachments,
+            parsed.MaxAttachmentBytes);
+        foreach (var attachment in bundle.Attachments)
+            output.WriteLine($"Attachment: {attachment.Path} ({attachment.Length:N0} bytes, sha256:{attachment.Sha256})");
+        if (parsed.DryRun)
+        {
+            output.WriteLine($"Dry run: {bundle.Attachments.Count} attachment(s) would be bundled with '{bundle.DocumentName}'.");
+            return 0;
+        }
+
+        WarnIfPasswordOnCommandLine(parsed, error);
+        AtomicFile.Write(parsed.Output!, stream => FlexonSerializer.Serialize(bundle, stream, parsed.ToFlexonOptions(forWrite: true)));
+        output.WriteLine($"Serialized reference-aware bundle with {bundle.Attachments.Count} attachment(s) to '{parsed.Output}'.");
+        return 0;
+    }
+
     private static int Deserialize(string[] args, TextWriter output, TextWriter error)
     {
         var parsed = CommandOptions.Parse(args);
@@ -113,7 +146,12 @@ public static class CliApplication
         using var stream = File.OpenRead(parsed.Inputs[0]);
         var value = FlexonSerializer.Deserialize(stream, parsed.ToFlexonOptions(forWrite: false));
 
-        if (value is Dictionary<string, object?> package)
+        if (value is FlexonBundle bundle)
+        {
+            ExtractReferenceAwareBundle(bundle, parsed.Output!);
+            output.WriteLine($"Deserialized '{bundle.DocumentName}' and {bundle.Attachments.Count} attachment(s) to '{parsed.Output}'.");
+        }
+        else if (value is Dictionary<string, object?> package)
         {
             var root = Path.GetFullPath(parsed.Output!);
             var destinations = package.Keys.ToDictionary(name => name, name => GetSafeChildPath(root, name), StringComparer.Ordinal);
@@ -132,6 +170,34 @@ public static class CliApplication
             output.WriteLine($"Deserialized value to '{parsed.Output}'.");
         }
         return 0;
+    }
+
+    private static void ExtractReferenceAwareBundle(FlexonBundle bundle, string outputDirectory)
+    {
+        var root = Path.GetFullPath(outputDirectory);
+        var paths = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [bundle.DocumentName] = GetSafeBundleChildPath(root, bundle.DocumentName)
+        };
+        foreach (var attachment in bundle.Attachments)
+        {
+            if (!paths.TryAdd(attachment.Path, GetSafeBundleChildPath(root, attachment.Path)))
+                throw new FlexonFormatException($"Bundle output path '{attachment.Path}' is duplicated.");
+        }
+        var duplicateDestination = paths.Values.GroupBy(path => path, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+        if (duplicateDestination is not null)
+            throw new FlexonFormatException($"Multiple bundle entries map to output path '{duplicateDestination.Key}'.");
+
+        Directory.CreateDirectory(root);
+        foreach (var destination in paths.Values)
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        foreach (var destination in paths.Values)
+            EnsureNoExtractionReparsePoints(root, destination);
+
+        AtomicFile.WriteAllText(paths[bundle.DocumentName], JsonSerializer.Serialize(bundle.Document, PrettyJson));
+        foreach (var attachment in bundle.Attachments)
+            AtomicFile.WriteAllBytes(paths[attachment.Path], attachment.Data.ToArray());
     }
 
     private static int Encode(string[] args, TextWriter output, TextWriter error)
@@ -303,6 +369,30 @@ public static class CliApplication
         return candidate;
     }
 
+    private static string GetSafeBundleChildPath(string root, string logicalPath)
+    {
+        var normalized = FlexonBundle.NormalizeLogicalPath(logicalPath);
+        var candidate = Path.GetFullPath(Path.Combine(root, normalized.Replace('/', Path.DirectorySeparatorChar)));
+        var rootWithSeparator = root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        if (!candidate.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase))
+            throw new FlexonFormatException($"Bundle path '{logicalPath}' escapes the output directory.");
+        return candidate;
+    }
+
+    private static void EnsureNoExtractionReparsePoints(string root, string destination)
+    {
+        var current = root;
+        if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+            throw new FlexonFormatException($"Output directory '{root}' is a symbolic link or reparse point.");
+        foreach (var segment in Path.GetRelativePath(root, destination).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+        {
+            current = Path.Combine(current, segment);
+            if ((File.Exists(current) || Directory.Exists(current)) &&
+                (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                throw new FlexonFormatException($"Bundle output path '{destination}' traverses a symbolic link or reparse point.");
+        }
+    }
+
     private static EncryptionAlgorithm ParseEncryption(string value) => value.ToLowerInvariant() switch
     {
         "aes" or "aes256" or "aes256gcm" or "aes-256-gcm" => EncryptionAlgorithm.Aes256Gcm,
@@ -352,6 +442,12 @@ public static class CliApplication
         output.WriteLine("  --encryption <algorithm>     none, AES256, ChaCha20");
         output.WriteLine("  --password-env <name>        Read password from an environment variable");
         output.WriteLine("  --password-file <path>       Read password from a protected local file");
+        output.WriteLine("  --attachments <mode>         explicit, marked, discover");
+        output.WriteLine("  --resolve-files              Alias for --attachments discover");
+        output.WriteLine("  --attach [logical=]<path>    Add an explicit bundle attachment (repeatable)");
+        output.WriteLine("  --base-dir <path>            Root used to resolve JSON file references");
+        output.WriteLine("  --max-attachment-bytes <n>   Per-file limit; supports KB, MB, GB suffixes");
+        output.WriteLine("  --dry-run                    Report bundle attachments without writing output");
         output.WriteLine("  -e, --encrypt <password> [algorithm] (compatibility; less secure)");
     }
 
@@ -364,6 +460,12 @@ public static class CliApplication
         public EncryptionAlgorithm Encryption { get; private set; } = EncryptionAlgorithm.None;
         public string? Password { get; private set; }
         public bool PasswordWasOnCommandLine { get; private set; }
+        public AttachmentMode AttachmentHandling { get; private set; } = AttachmentMode.Explicit;
+        public List<string> ExplicitAttachments { get; } = new();
+        public string? BaseDirectory { get; private set; }
+        public long MaxAttachmentBytes { get; private set; } = 256L * 1024 * 1024;
+        public bool DryRun { get; private set; }
+        public bool UsesReferenceAwareBundle => AttachmentHandling != FlexonCLI.AttachmentMode.Explicit || ExplicitAttachments.Count > 0;
 
         public static CommandOptions Parse(string[] args, bool allowMultipleInputs = false)
         {
@@ -373,16 +475,20 @@ public static class CliApplication
                 var argument = args[index];
                 switch (argument)
                 {
-                    case "-i": case "--input":
+                    case "-i":
+                    case "--input":
                         result.Inputs.Add(RequireValue(args, ref index, argument));
                         break;
-                    case "-o": case "--output":
+                    case "-o":
+                    case "--output":
                         result.Output = RequireValue(args, ref index, argument);
                         break;
-                    case "-s": case "--schema":
+                    case "-s":
+                    case "--schema":
                         result.Schema = RequireValue(args, ref index, argument);
                         break;
-                    case "-c": case "--compression":
+                    case "-c":
+                    case "--compression":
                         result.Compression = ParseCompression(RequireValue(args, ref index, argument));
                         break;
                     case "--encryption":
@@ -400,7 +506,26 @@ public static class CliApplication
                     case "--password-file":
                         result.Password = File.ReadAllText(RequireValue(args, ref index, argument)).TrimEnd('\r', '\n');
                         break;
-                    case "-e": case "--encrypt":
+                    case "--attachments":
+                        result.AttachmentHandling = ParseAttachmentMode(RequireValue(args, ref index, argument));
+                        break;
+                    case "--resolve-files":
+                        result.AttachmentHandling = FlexonCLI.AttachmentMode.Discover;
+                        break;
+                    case "--attach":
+                        result.ExplicitAttachments.Add(RequireValue(args, ref index, argument));
+                        break;
+                    case "--base-dir":
+                        result.BaseDirectory = RequireValue(args, ref index, argument);
+                        break;
+                    case "--max-attachment-bytes":
+                        result.MaxAttachmentBytes = ParseByteLimit(RequireValue(args, ref index, argument));
+                        break;
+                    case "--dry-run":
+                        result.DryRun = true;
+                        break;
+                    case "-e":
+                    case "--encrypt":
                         result.Password = RequireValue(args, ref index, argument);
                         result.PasswordWasOnCommandLine = true;
                         result.Encryption = EncryptionAlgorithm.Aes256Gcm;
@@ -420,7 +545,8 @@ public static class CliApplication
         {
             Compression = forWrite ? Compression : CompressionMethod.GZip,
             Encryption = forWrite ? Encryption : EncryptionAlgorithm.None,
-            Password = Password
+            Password = Password,
+            MaxValueBytes = checked((int)Math.Min(MaxAttachmentBytes, int.MaxValue))
         };
 
         public void RequireInputs()
@@ -452,6 +578,36 @@ public static class CliApplication
             "brotli" => CompressionMethod.Brotli,
             _ => throw new CliUsageException($"Unknown compression method '{value}'.")
         };
+
+        private static AttachmentMode ParseAttachmentMode(string value) => value.ToLowerInvariant() switch
+        {
+            "explicit" => AttachmentMode.Explicit,
+            "marked" => AttachmentMode.Marked,
+            "discover" => AttachmentMode.Discover,
+            _ => throw new CliUsageException($"Unknown attachment mode '{value}'.")
+        };
+
+        private static long ParseByteLimit(string value)
+        {
+            var text = value.Trim();
+            long multiplier = 1;
+            foreach (var suffix in new[] { ("GB", 1024L * 1024 * 1024), ("MB", 1024L * 1024), ("KB", 1024L) })
+            {
+                if (!text.EndsWith(suffix.Item1, StringComparison.OrdinalIgnoreCase)) continue;
+                multiplier = suffix.Item2;
+                text = text[..^suffix.Item1.Length].Trim();
+                break;
+            }
+            if (!long.TryParse(text, out var number) || number < 1)
+                throw new CliUsageException($"Invalid byte limit '{value}'.");
+            try
+            {
+                var bytes = checked(number * multiplier);
+                if (bytes > int.MaxValue) throw new CliUsageException($"Byte limit '{value}' exceeds the supported {int.MaxValue:N0}-byte value limit.");
+                return bytes;
+            }
+            catch (OverflowException) { throw new CliUsageException($"Byte limit '{value}' is too large."); }
+        }
     }
 
     private sealed class CliUsageException : Exception

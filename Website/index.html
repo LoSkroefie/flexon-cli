@@ -9,9 +9,9 @@
 </head>
 <body>
   <main>
-    <p class="eyebrow">FLEXON v2</p>
+    <p class="eyebrow">FLEXON CLI 3.1 · format v2</p>
     <h1>Binary packaging with explicit safety boundaries.</h1>
-    <p class="lead">A .NET library and cross-platform CLI for versioned binary values, standard compression, corruption detection, and authenticated encryption.</p>
+    <p class="lead">A .NET library and cross-platform CLI for versioned binary values and portable JSON projects with images, documents, audio, models, and other native attachments.</p>
     <div class="actions">
       <a class="primary" href="https://github.com/LoSkroefie/flexon-cli">View source</a>
       <a href="https://github.com/LoSkroefie/flexon-cli/releases">Verified releases</a>
@@ -22,12 +22,15 @@
       <article><h2>Authenticated</h2><p>AES-256-GCM and ChaCha20-Poly1305 protect both payload and envelope metadata.</p></article>
       <article><h2>Bounded</h2><p>Configurable input, decompression, depth, collection, and value limits reduce untrusted-input risk.</p></article>
       <article><h2>Automatable</h2><p>Atomic writes, stderr diagnostics, stable exit codes, CI tests, and checksum-verified release artifacts.</p></article>
+      <article><h2>Reference-aware</h2><p>Opt-in discovery or explicit markers preserve JSON file references and safely reconstruct nested attachment paths.</p></article>
     </section>
     <pre><code>$env:FLEXON_PASSWORD = "from-your-secret-store"
 flexon-cli serialize -i data.json -o data.flexon --encryption AES256 --password-env FLEXON_PASSWORD
 flexon-cli deserialize -i data.flexon -o restored --password-env FLEXON_PASSWORD</code></pre>
-    <pre><code>dotnet tool install --global FlexonCLI --version 3.0.0
-dotnet add package Flexon.Core --version 3.0.0</code></pre>
+    <pre><code>flexon-cli serialize -i project.json -o project.flexon --resolve-files
+flexon-cli deserialize -i project.flexon -o restored-project</code></pre>
+    <pre><code>dotnet tool install --global FlexonCLI --version 3.1.0
+dotnet add package Flexon.Core --version 3.1.0</code></pre>
     <p class="note">Performance varies by workload. FLEXON publishes no universal speed or compression claims without reproducible evidence.</p>
   </main>
 </body>
