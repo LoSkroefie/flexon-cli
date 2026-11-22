@@ -21,7 +21,7 @@ flexon-cli serialize -i project.json -o project.flexon --attachments discover
 
 Every JSON string is considered, but a file is attached only when the value is a safe relative logical path and resolves to an existing regular file beneath the base directory. The default base is the JSON document's directory. URLs, missing paths, unsafe paths, directories, and strings that are not files are ignored. Existing reparse points cause an error rather than being followed.
 
-The JSON is preserved unchanged. If it contains `"image": "assets/logo.png"`, extraction recreates `assets/logo.png` beneath the output directory.
+JSON structure and values are preserved under the [JSON round-trip contract](../README.md#json-round-trip-contract); numeric spelling may normalize. Duplicate object keys and numbers that would change decoded value are rejected. If it contains `"image": "assets/logo.png"`, extraction recreates `assets/logo.png` beneath the output directory.
 
 ### Mark required references
 

@@ -138,15 +138,19 @@ internal static class BinaryCodec
                     writer.Write((byte)ValueType.UInt64);
                     writer.Write(unsigned);
                 }
-                else if (element.TryGetDecimal(out var decimalValue))
+                else if (element.TryGetDecimal(out var decimalValue) && JsonNumber.HasSameValue(element.GetRawText(), JsonSerializer.Serialize(decimalValue)))
                 {
                     writer.Write((byte)ValueType.Decimal);
                     foreach (var part in decimal.GetBits(decimalValue)) writer.Write(part);
                 }
                 else
                 {
+                    var doubleValue = element.GetDouble();
+                    if (!double.IsFinite(doubleValue) ||
+                        !JsonNumber.HasSameValue(element.GetRawText(), JsonSerializer.Serialize(doubleValue)))
+                        throw new FlexonFormatException("JSON number cannot be represented by FLEXON v2 without loss of its decoded JSON value.");
                     writer.Write((byte)ValueType.Double);
-                    writer.Write(element.GetDouble());
+                    writer.Write(doubleValue);
                 }
                 break;
             case JsonValueKind.String:
@@ -165,8 +169,11 @@ internal static class BinaryCodec
                 EnsureCount(properties.Length, options);
                 writer.Write((byte)ValueType.Object);
                 writer.Write(properties.Length);
+                var keys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var property in properties)
                 {
+                    if (!keys.Add(property.Name))
+                        throw new FlexonFormatException($"Duplicate object key '{property.Name}'.");
                     WriteBytes(writer, Encoding.UTF8.GetBytes(property.Name), options);
                     WriteJsonElement(writer, property.Value, options, depth + 1);
                 }

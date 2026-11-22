@@ -67,3 +67,7 @@ Logical paths use `/`, must be relative, and must be portable across supported o
 ## Compatibility
 
 Writers must emit v2. Readers may offer a separate v1 compatibility path, but v1 is not part of this specification. Any future incompatible change requires a new version byte.
+
+### JSON writer validation
+
+JSON object names must be unique using ordinal, case-sensitive comparison, including nested values and bundle content. Writers reject duplicate keys before committing output. JSON numbers are accepted only when the existing Int64, UInt64, Decimal or Double representation produces decoded JSON with the same exact base-ten value. Numeric spelling and signed zero may normalize; rounded, underflowed and overflowed JSON values are rejected. For Double, comparison uses System.Text.Json's emitted round-trip decimal spelling. See the [JSON round-trip contract](../README.md#json-round-trip-contract) for examples. No wire tags or layouts change.
