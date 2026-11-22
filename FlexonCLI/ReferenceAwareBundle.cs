@@ -30,6 +30,7 @@ internal static class ReferenceAwareBundle
         JsonElement bundledDocument;
         if (mode == AttachmentMode.Marked)
         {
+            EnsureUniqueKeys(document);
             var node = JsonNode.Parse(document.GetRawText());
             var transformed = TransformMarked(node, root, attachments, maxAttachmentBytes);
             bundledDocument = JsonSerializer.SerializeToElement(transformed);
@@ -68,16 +69,42 @@ internal static class ReferenceAwareBundle
             }
 
             foreach (var property in obj.ToArray())
-                obj[property.Key] = TransformMarked(property.Value, root, attachments, maxAttachmentBytes);
+            {
+                var transformed = TransformMarked(property.Value, root, attachments, maxAttachmentBytes);
+                if (!ReferenceEquals(property.Value, transformed)) obj[property.Key] = transformed;
+            }
             return obj;
         }
 
         if (node is JsonArray array)
         {
             for (var index = 0; index < array.Count; index++)
-                array[index] = TransformMarked(array[index], root, attachments, maxAttachmentBytes);
+            {
+                var existing = array[index];
+                var transformed = TransformMarked(existing, root, attachments, maxAttachmentBytes);
+                if (!ReferenceEquals(existing, transformed)) array[index] = transformed;
+            }
         }
         return node;
+    }
+
+    // JsonObject materialization otherwise hides the codec's duplicate-key diagnostic.
+    private static void EnsureUniqueKeys(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in element.EnumerateObject())
+            {
+                if (!keys.Add(property.Name))
+                    throw new FlexonFormatException($"Duplicate object key '{property.Name}'.");
+                EnsureUniqueKeys(property.Value);
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in element.EnumerateArray()) EnsureUniqueKeys(item);
+        }
     }
 
     private static void DiscoverReferences(

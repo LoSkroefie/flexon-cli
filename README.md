@@ -11,7 +11,7 @@ FLEXON is a compact, versioned binary envelope for JSON-compatible values and fi
 ## What ships
 
 - Explicitly versioned `FLXN` v2 files with length-prefixed values and collections.
-- Complete JSON value support, including nested `null`, signed and unsigned 64-bit integers, decimals, and doubles.
+- JSON values including nested `null`, signed and unsigned 64-bit integers, decimals, and doubles, with exact decoded-JSON numeric value checks.
 - GZip, Deflate, Brotli, or no compression.
 - AES-256-GCM and ChaCha20-Poly1305 authenticated encryption.
 - PBKDF2-SHA256 password derivation with a random stored salt and 210,000 iterations by default.
@@ -160,3 +160,11 @@ Version 2 is intentionally a new format. The v1 implementation used `0x00` for b
 - `.github/workflows/` — cross-platform CI and tagged release automation.
 
 See [docs/BUNDLES.md](docs/BUNDLES.md), [SECURITY.md](SECURITY.md), [docs/SIGNATURES.md](docs/SIGNATURES.md), [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
+
+### JSON round-trip contract
+
+JSON objects must have unique keys (ordinal, case-sensitive comparison), including nested objects and bundle documents. Duplicate keys are rejected during serialization; escaped names such as `"a"` and `"\u0061"` name the same key. Failed CLI encoding preserves an existing output file.
+
+JSON numbers use the existing v2 Int64, UInt64, Decimal and Double tags. Serialization accepts a number only when the JSON emitted after decoding has the same exact base-ten value as the input. Whitespace, exponent spelling, trailing fractional zeros and the sign of zero are not preserved. For example, `1.2300e2` and `123` are equivalent, and `0.1` and `1.2e100` remain supported. Double values are checked against System.Text.Json's emitted round-trip decimal representation, rather than the double's exact binary fraction.
+
+Values that would round, underflow or overflow are rejected with a data error instead of silently changing value. Examples include `123456789012345678901234567890`, `0.123456789012345678901234567891` and `1e1000`. This contract applies to JSON input (`JsonElement`), including bundle documents; explicitly supplied CLR numeric values retain their existing typed encoding. The v2 wire format and tags are unchanged.
